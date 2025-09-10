@@ -1,8 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 
 const AboutPage = () => {
   const [activeTab, setActiveTab] = useState('heritage');
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end start"]
+  });
+  
+  const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
   // Team data
   const teamMembers = [
@@ -59,29 +67,48 @@ const AboutPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Hero Section */}
+    <div className="min-h-screen bg-black text-white overflow-hidden" ref={ref}>
+      {/* Hero Section with Parallax */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        <div 
+        <motion.div 
           className="absolute inset-0 z-0 bg-cover bg-center opacity-40"
           style={{
-            backgroundImage: "url('https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80')"
+            backgroundImage: "url('https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80')",
+            y: backgroundY
           }}
-        ></div>
+        ></motion.div>
         
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 to-black z-1"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black z-1"></div>
         
         <motion.div 
           className="relative z-10 text-center px-4 max-w-4xl"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
+          style={{ y: textY }}
         >
-          <h1 className="text-5xl md:text-7xl font-serif font-bold mb-6">Our Story</h1>
-          <p className="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto mb-10">
+          <motion.h1 
+            className="text-5xl md:text-7xl font-serif font-bold mb-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+          >
+            Our Story
+          </motion.h1>
+          <motion.p 
+            className="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto mb-10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+          >
             Where heritage craftsmanship meets contemporary elegance
-          </p>
-          <div className="w-24 h-1 bg-gold-500 mx-auto"></div>
+          </motion.p>
+          <motion.div 
+            className="w-24 h-1 bg-amber-400 mx-auto"
+            initial={{ width: 0 }}
+            animate={{ width: "6rem" }}
+            transition={{ delay: 0.7, duration: 0.8 }}
+          ></motion.div>
         </motion.div>
         
         <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-10">
@@ -89,7 +116,7 @@ const AboutPage = () => {
             animate={{ y: [0, 10, 0] }}
             transition={{ repeat: Infinity, duration: 1.5 }}
           >
-            <svg className="w-6 h-6 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <svg className="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
             </svg>
           </motion.div>
@@ -106,9 +133,16 @@ const AboutPage = () => {
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, margin: "-100px" }}
             >
-              <div className="text-4xl md:text-5xl font-serif text-gold-500 mb-2">{stat.number}</div>
+              <motion.div 
+                className="text-4xl md:text-5xl font-serif text-amber-400 mb-2"
+                whileInView={{ scale: [0.8, 1.1, 1] }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
+              >
+                {stat.number}
+              </motion.div>
               <div className="text-sm md:text-base text-gray-400 uppercase tracking-wider">{stat.label}</div>
             </motion.div>
           ))}
@@ -123,7 +157,7 @@ const AboutPage = () => {
               initial={{ opacity: 0, x: -50 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.7 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, margin: "-100px" }}
             >
               <h2 className="text-3xl md:text-4xl font-serif font-bold mb-6">Our Heritage</h2>
               <p className="text-gray-300 mb-6 leading-relaxed">
@@ -135,26 +169,40 @@ const AboutPage = () => {
                 Our designs are created by master artisans who employ time-honored techniques passed down through 
                 generations, ensuring that every garment is not just clothing, but a wearable piece of art.
               </p>
-              <button className="border border-gold-500 text-gold-500 px-8 py-3 hover:bg-gold-500 hover:text-black transition-colors duration-300">
+              <motion.button 
+                className="border border-amber-400 text-amber-400 px-8 py-3 hover:bg-amber-400 hover:text-black transition-colors duration-300"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 Discover Our Process
-              </button>
+              </motion.button>
             </motion.div>
             
             <motion.div
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.7 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, margin: "-100px" }}
               className="relative"
             >
-              <div className="aspect-square bg-gray-800 rounded-lg overflow-hidden">
+              <motion.div 
+                className="aspect-square bg-gray-800 rounded-lg overflow-hidden"
+                whileHover={{ rotate: 1 }}
+                transition={{ duration: 0.3 }}
+              >
                 <img 
-                  src="https://images.unsplash.com/photo-1596466596120-2a8e4b5d1a51?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" 
+                  src="https://images.unsplash.com/photo-1516762689617-e1cffcef479d?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8Y2xvdGhlc3xlbnwwfHwwfHx8MA%3D%3D" 
                   alt="Craftsmanship" 
                   className="w-full h-full object-cover"
                 />
-              </div>
-              <div className="absolute -bottom-6 -left-6 w-32 h-32 border-2 border-gold-500 z-10"></div>
+              </motion.div>
+              <motion.div 
+                className="absolute -bottom-6 -left-6 w-32 h-32 border-2 border-amber-400 z-10"
+                initial={{ opacity: 0, x: -20, y: 20 }}
+                whileInView={{ opacity: 1, x: 0, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.3 }}
+                viewport={{ once: true }}
+              ></motion.div>
             </motion.div>
           </div>
         </div>
@@ -168,7 +216,7 @@ const AboutPage = () => {
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: "-100px" }}
           >
             <h2 className="text-3xl md:text-4xl font-serif font-bold mb-6">Our Values</h2>
             <p className="text-gray-300 max-w-2xl mx-auto">
@@ -180,15 +228,19 @@ const AboutPage = () => {
             {values.map((value, index) => (
               <motion.div 
                 key={index}
-                className="bg-black p-8 border border-gray-800 hover:border-gold-500 transition-colors duration-300 group"
+                className="bg-black p-8 border border-gray-800 hover:border-amber-400 transition-colors duration-300 group"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
+                viewport={{ once: true, margin: "-100px" }}
                 whileHover={{ y: -10 }}
               >
-                <div className="text-3xl mb-4">{value.icon}</div>
-                <h3 className="text-xl font-serif font-bold mb-4 group-hover:text-gold-500 transition-colors">{value.title}</h3>
+                <motion.div 
+                  className="text-3xl mb-4"
+                  whileHover={{ rotate: 10, scale: 1.2 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >{value.icon}</motion.div>
+                <h3 className="text-xl font-serif font-bold mb-4 group-hover:text-amber-400 transition-colors">{value.title}</h3>
                 <p className="text-gray-400">{value.description}</p>
               </motion.div>
             ))}
@@ -204,7 +256,7 @@ const AboutPage = () => {
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: "-100px" }}
           >
             <h2 className="text-3xl md:text-4xl font-serif font-bold mb-6">Meet Our Artisans</h2>
             <p className="text-gray-300 max-w-2xl mx-auto">
@@ -220,9 +272,13 @@ const AboutPage = () => {
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
+                viewport={{ once: true, margin: "-100px" }}
               >
-                <div className="relative mb-6 overflow-hidden rounded-lg">
+                <motion.div 
+                  className="relative mb-6 overflow-hidden rounded-lg"
+                  whileHover={{ scale: 1.03 }}
+                  transition={{ duration: 0.3 }}
+                >
                   <div className="aspect-square bg-gray-800">
                     <img 
                       src={member.image} 
@@ -233,9 +289,9 @@ const AboutPage = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-70"></div>
                   <div className="absolute bottom-4 left-4 text-left">
                     <h4 className="text-xl font-bold">{member.name}</h4>
-                    <p className="text-gold-500">{member.role}</p>
+                    <p className="text-amber-400">{member.role}</p>
                   </div>
-                </div>
+                </motion.div>
                 <p className="text-gray-400">{member.bio}</p>
               </motion.div>
             ))}
@@ -245,33 +301,42 @@ const AboutPage = () => {
 
       {/* CTA Section */}
       <section className="py-20 px-4 bg-gray-900 relative">
-        <div 
-          className="absolute inset-0 opacity-10"
+        <motion.div 
+          className="absolute inset-0 opacity-80"
           style={{
-            backgroundImage: "url('https://images.unsplash.com/photo-1589985270826-4b7fe135a9c4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1171&q=80')",
+            backgroundImage: "url('https://images.unsplash.com/photo-1445205170230-053b83016050?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fGNsb3RoZXN8ZW58MHx8MHx8fDA%3D')",
             backgroundSize: "cover",
-            backgroundPosition: "center"
+            backgroundPosition: "center",
+            y: backgroundY
           }}
-        ></div>
+        ></motion.div>
         
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: "-100px" }}
           >
             <h2 className="text-3xl md:text-4xl font-serif font-bold mb-6">Experience Our Craftsmanship</h2>
             <p className="text-gray-300 mb-10 max-w-2xl mx-auto">
               Discover the artistry and passion behind each of our creations in our exclusive collections
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-gold-500 text-black px-8 py-4 font-medium hover:bg-gold-600 transition-colors">
+              <motion.button 
+                className="bg-amber-400 text-black px-8 py-4 font-medium hover:bg-amber-500 transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 View Collections
-              </button>
-              <button className="border border-white text-white px-8 py-4 hover:bg-white hover:text-black transition-colors">
+              </motion.button>
+              <motion.button 
+                className="border border-white text-white px-8 py-4 hover:bg-white hover:text-black transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 Book a Consultation
-              </button>
+              </motion.button>
             </div>
           </motion.div>
         </div>
@@ -280,3 +345,4 @@ const AboutPage = () => {
   );
 };
 
+export default AboutPage;
