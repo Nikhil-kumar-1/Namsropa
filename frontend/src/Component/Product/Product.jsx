@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
+import { backendUrl } from "../../config/config";
 
 const Product = () => {
   const [dresses, setDresses] = useState([]);
@@ -10,7 +11,7 @@ const Product = () => {
   useEffect(() => {
     const fetchDresses = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/dresses");
+        const res = await axios.get(`${backendUrl}/api/dresses`);
         // Assuming backend sends { success: true, dresses: [...] }
         if (res.data && Array.isArray(res.data.dresses)) {
           setDresses(res.data.dresses);
