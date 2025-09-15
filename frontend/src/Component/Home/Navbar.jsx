@@ -30,8 +30,8 @@ const Navbar = () => {
   };
 
   const navItems = [
-    { name: "Home", path: "/new" },
-    { name: "Dresses", path: "/high-jewellery" },
+    { name: "Home", path: "/" },
+    { name: "Dresses", path: "/products" },
     { name: "Tops", path: "/fine-jewellery" },
     { name: "Bottoms", path: "/womenswear" },
     { name: "Jumpsuits", path: "/menswear" },
