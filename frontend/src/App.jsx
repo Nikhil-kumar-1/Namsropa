@@ -6,7 +6,7 @@ import AboutPage from "./Component/About/AboutPage";
 
 import Navbar from "./Component/Home/Navbar"
 import Footer from "./Component/Home/Footer/Footer";
-import HOME from "./Component/Home/HOME";
+import HOME from "./Component/Home/Home";
 import Login from "./Component/Login/Login";
 import NotFound from "./Component/NotFound/NotFound";
 import Signup from "./Component/Signup/Signup";
