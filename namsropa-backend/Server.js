@@ -17,9 +17,8 @@ app.use(cookieParser());
 
 
 const allowedOrigins = [
-  "https://namsropa.onrender.com",   // backend domain (not needed usually)
   "http://localhost:5173",
-  "https://namsropa.vercel.app"      // ✅ add frontend domain here
+  "https://namsropa.vercel.app/"      // ✅ add frontend domain here
 ];
 
 
