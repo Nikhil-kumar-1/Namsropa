@@ -16,6 +16,7 @@ import ReturnsCancellations from "./Component/ReturnsAndRefund/ReturnAndRefund";
 import ContactUs from "./Component/Contact/Contact";
 import Product from "./Component/Product/Product";
 import AdminDashboard from "./Component/Admin/AdminDashboard";
+import ProductDetails from "./Component/Product/ProductDetails";
 
 
 
@@ -42,6 +43,7 @@ const AppContent = () => {
         <Route path="/returns" element={<ReturnsCancellations />} />
         <Route path="/contact" element={<ContactUs />} />   
         <Route path="/products" element={<Product/>} /> 
+        <Route path="/product/:id" element={<ProductDetails />} /> 
         <Route path="/admin" element={<AdminDashboard />} />   
         
         <Route path="*" element={<NotFound />} />

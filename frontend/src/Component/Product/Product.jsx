@@ -2,11 +2,13 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { backendUrl } from "../../config/config";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 const Product = () => {
   const [dresses, setDresses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate(); // Initialize navigate
 
   useEffect(() => {
     const fetchDresses = async () => {
@@ -27,6 +29,11 @@ const Product = () => {
 
     fetchDresses();
   }, []);
+
+  // Function to handle product click
+  const handleProductClick = (dress) => {
+    navigate(`/product/${dress._id}`, { state: { product: dress } });
+  };
 
   if (loading) {
     return (
@@ -65,7 +72,7 @@ const Product = () => {
     <div className="bg-white">
       {/* Hero Section - Reduced height */}
       <div
-        className="relative h-[60vh] flex items-center justify-center bg-center bg-cover"
+        className="relative h-[70vh]  flex items-center justify-center bg-center bg-cover"
         style={{
           backgroundImage:
             "url('https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1744&q=80')",
@@ -79,7 +86,7 @@ const Product = () => {
           transition={{ duration: 0.8 }}
         >
           <motion.h1 
-            className="text-4xl md:text-5xl font-serif font-bold mb-4 text-white"
+            className="text-4xl md:text-5xl mt-10 font-serif font-bold mb-4 text-white"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.8 }}
@@ -166,6 +173,7 @@ const Product = () => {
                   transition: { duration: 0.3 }
                 }}
                 className="bg-white rounded-xl shadow-md overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-300 group border border-gray-100"
+                onClick={() => handleProductClick(dress)} // Add click handler
               >
                 <div className="relative overflow-hidden bg-gradient-to-br from-yellow-50 to-gray-100 aspect-[3/4]">
                   <img
@@ -184,6 +192,10 @@ const Product = () => {
                       className="bg-white rounded-full p-1.5 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent navigation when clicking favorite
+                        // Add to favorites logic here
+                      }}
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -203,6 +215,10 @@ const Product = () => {
                       className="bg-white rounded-full p-1.5 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-75"
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent navigation when clicking quick view
+                        // Quick view logic here
+                      }}
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -248,6 +264,10 @@ const Product = () => {
                       className="bg-black text-yellow-400 px-3 py-1.5 rounded-full text-xs hover:bg-yellow-400 hover:text-black transition-all duration-300 flex items-center gap-1 font-serif"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent navigation when clicking add to cart
+                        // Add to cart logic here
+                      }}
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"

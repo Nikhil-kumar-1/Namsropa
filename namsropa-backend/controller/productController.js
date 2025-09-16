@@ -106,17 +106,17 @@ const createDress = async (req, res) => {
     const imageObjects = images.map(img => ({ url: img.url, publicId: img.publicId }));
 
     const dress = new Dress({
-      brand,
-      title,
-      description,
-      category,
-      price: toNumber(price),
-      originalPrice: toNumber(originalPrice),
-      sizes: parseList(sizes),
-      colors: parseList(colors),
-      images: imageObjects,
-      image: imageObjects[0].url // main image
-    });
+  brand,
+  title,
+  description,
+  category,
+  price: toNumber(price),
+  originalPrice: toNumber(originalPrice),
+  sizes: parseList(sizes),
+  colors: parseList(colors),
+  images: imageObjects,
+  image: imageObjects[0] // ✅ ab object save hoga { url, publicId }
+});
 
     const savedDress = await dress.save();
     res.status(201).json(savedDress);
@@ -142,9 +142,10 @@ const updateDress = async (req, res) => {
     if (colors) updates.colors = parseList(colors);
 
     if (images && images.length) {
-      updates.images = images; // [{url, publicId}]
-      updates.image = images[0].url;
-    }
+  updates.images = images; // [{url, publicId}]
+  updates.image = images[0]; // ✅ poora object save karna hai
+}
+
 
     const dress = await Dress.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true });
     if (!dress) return res.status(404).json({ message: "Dress not found" });
