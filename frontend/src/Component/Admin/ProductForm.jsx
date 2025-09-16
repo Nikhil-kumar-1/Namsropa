@@ -98,74 +98,88 @@ const ProductUploadForm = () => {
 
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage({ text: "", type: "" });
+  e.preventDefault();
+  setLoading(true);
+  setMessage({ text: "", type: "" });
 
-    try {
-      if (!image) throw new Error("Main image is required!");
+  try {
+    if (!image) throw new Error("Main image is required!");
 
-      // Upload main image
-      const mainImage = await uploadToCloudinary(image);
+    // Upload main image
+    const mainImage = await uploadToCloudinary(image);
 
-      // Upload additional images
-      const additionalImages = [];
-      for (const file of images) {
-        const uploaded = await uploadToCloudinary(file);
-        additionalImages.push(uploaded);
-      }
-
-      // Prepare payload
-      // Prepare payload
-const payload = {
-  ...formData,
-  price: parseFloat(formData.price),
-  originalPrice: formData.originalPrice ? parseFloat(formData.originalPrice) : parseFloat(formData.price),
-  stockQuantity: formData.stockQuantity ? parseInt(formData.stockQuantity) : 0,
-  discount: formData.discount ? parseFloat(formData.discount) : 0,
-  sizes: formData.sizes.split(",").map(s => s.trim()).filter(Boolean),
-  colors: formData.colors.split(",").map(c => c.trim()).filter(Boolean),
-  tags: formData.tags.split(",").map(t => t.trim()).filter(Boolean),
-  image: mainImage.url, // main image URL
-  images: [
-    { url: mainImage.url, publicId: mainImage.publicId },
-    ...additionalImages.map(img => ({ url: img.url, publicId: img.publicId }))
-  ]
-};
-        console.log("Payload to be sent:", payload);
-      
-      // Reset form
-      setFormData({
-        brand: "",
-        title: "",
-        price: "",
-        originalPrice: "",
-        description: "",
-        category: "casual",
-        sizes: "",
-        colors: "",
-        inStock: true,
-        stockQuantity: "",
-        featured: false,
-        trending: false,
-        discount: "",
-        tags: ""
-      });
-      setImage(null);
-      setImages([]);
-      setPreviewImage(null);
-      setPreviewImages([]);
-      
-    } catch (err) {
-      console.error("Upload error:", err);
-      setMessage({
-        text: `❌ Failed to upload product: ${err.response?.data?.message || err.message}`,
-        type: "error"
-      });
-    } finally {
-      setLoading(false);
+    // Upload additional images
+    const additionalImages = [];
+    for (const file of images) {
+      const uploaded = await uploadToCloudinary(file);
+      additionalImages.push(uploaded);
     }
-  };
+
+    // Prepare payload
+    const payload = {
+      ...formData,
+      price: parseFloat(formData.price),
+      originalPrice: formData.originalPrice
+        ? parseFloat(formData.originalPrice)
+        : parseFloat(formData.price),
+      stockQuantity: formData.stockQuantity
+        ? parseInt(formData.stockQuantity)
+        : 0,
+      discount: formData.discount ? parseFloat(formData.discount) : 0,
+      sizes: formData.sizes.split(",").map((s) => s.trim()).filter(Boolean),
+      colors: formData.colors.split(",").map((c) => c.trim()).filter(Boolean),
+      tags: formData.tags.split(",").map((t) => t.trim()).filter(Boolean),
+      image: { url: mainImage.url, publicId: mainImage.publicId },
+      images: [
+        { url: mainImage.url, publicId: mainImage.publicId },
+        ...additionalImages.map((img) => ({
+          url: img.url,
+          publicId: img.publicId,
+        })),
+      ],
+    };
+
+    console.log("Payload to be sent:", payload);
+
+    // ✅ Yaha backend ko call karo
+    const res = await axios.post("http://localhost:5000/api/dresses", payload);
+
+    setMessage({ text: "✅ Product uploaded successfully!", type: "success" });
+
+    // Reset form
+    setFormData({
+      brand: "",
+      title: "",
+      price: "",
+      originalPrice: "",
+      description: "",
+      category: "casual",
+      sizes: "",
+      colors: "",
+      inStock: true,
+      stockQuantity: "",
+      featured: false,
+      trending: false,
+      discount: "",
+      tags: "",
+    });
+    setImage(null);
+    setImages([]);
+    setPreviewImage(null);
+    setPreviewImages([]);
+  } catch (err) {
+    console.error("Upload error:", err);
+    setMessage({
+      text: `❌ Failed to upload product: ${
+        err.response?.data?.message || err.message
+      }`,
+      type: "error",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const removePreviewImage = () => {
     setImage(null);
