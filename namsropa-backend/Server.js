@@ -3,7 +3,7 @@ const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const mongoose = require("mongoose");
-const authRoutes = require("./routes/auth")
+const authRoutes = require("./routes/auth");
 const productRoutes = require("./routes/productRoute");
 const cloudinary = require("cloudinary").v2;
 
@@ -15,18 +15,17 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-
+// ✅ Allowed Origins (Frontend URLs only)
 const allowedOrigins = [
-  "http://localhost:5173",
-  "https://namsropa.vercel.app/"      // ✅ add frontend domain here
+  "http://localhost:5173",             // local dev
+  "https://namsropa.vercel.app"        // production frontend
 ];
 
-
-// CORS middleware
+// ✅ CORS middleware
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps / curl)
+      // Allow requests with no origin (like Postman, curl, etc.)
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
@@ -40,23 +39,23 @@ app.use(
   })
 );
 
-// / Cloudinary Config
+// ✅ Cloudinary Config
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
   api_key: process.env.API_KEY,
   api_secret: process.env.API_SECRET,
 });
 
-
-
+// ✅ Routes
 app.use("/api/v1/auth", authRoutes);
-app.use('/api/dresses', productRoutes);
+app.use("/api/dresses", productRoutes);
 
+// 404 handler
 app.use((req, res) => {
   res.status(404).json({ error: "Route not found" });
 });
 
-// Connect DB and Start Server
+// ✅ Connect DB and Start Server
 const PORT = process.env.PORT || 5000;
 
 mongoose
