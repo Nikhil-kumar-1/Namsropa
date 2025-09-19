@@ -17,6 +17,11 @@ import ContactUs from "./Component/Contact/Contact";
 import Product from "./Component/Product/Product";
 import AdminDashboard from "./Component/Admin/AdminDashboard";
 import ProductDetails from "./Component/Product/ProductDetails";
+import ProductByCategory from "./Component/Product/ProductByCategory";
+import ScrollToTop from "./Component/ScrollToTop";
+import Cart from "./Component/Cart/Cart";
+import SizeChart from "./Component/SizeAndChart/SizeChart";
+
 
 
 
@@ -28,8 +33,9 @@ const AppContent = () => {
 
   return (
     <>
-     
+     <ScrollToTop />
       {!isAdminRoute && <Navbar />}
+      
      
       <Routes>
         
@@ -44,7 +50,12 @@ const AppContent = () => {
         <Route path="/contact" element={<ContactUs />} />   
         <Route path="/products" element={<Product/>} /> 
         <Route path="/product/:id" element={<ProductDetails />} /> 
-        <Route path="/admin" element={<AdminDashboard />} />   
+        <Route path="/category/:category" element={<ProductByCategory />} />
+        <Route path="/cart" element={<Cart />} /> 
+        <Route path="/size-chart" element={<SizeChart/>} />
+        <Route path="/admin" element={<AdminDashboard />} />
+         
+        
         
         <Route path="*" element={<NotFound />} />
 

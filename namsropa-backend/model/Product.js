@@ -37,8 +37,8 @@ image: {
   
   category: {
     type: String,
-    enum: ['tops', 'bottoms', 'jumpsuits', 'coats', 'bridesmaid', 'winter'],
-    default: 'casual'
+    enum: ['Tops', 'Bottoms', 'Jumpsuits', 'Coats', 'Bridesmaid', 'Winter'],
+    default: 'Tops'
   },
   sizes: [{
     type: String,

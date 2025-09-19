@@ -36,6 +36,7 @@ const Footer = () => {
     { name: "Privacy Policy", path: "/privacy-policy" },
     { name: "Terms & Conditions", path: "/terms" },
     { name: "Return & Refund", path: "/returns" },
+    { name: "Size-Chart", path: "/size-chart" },
     { name: "Payment & Shipping", path: "/payment-shipping" },
     { name: "Contact Us", path: "/contact" },
     { name: "Login", path: "/login" },

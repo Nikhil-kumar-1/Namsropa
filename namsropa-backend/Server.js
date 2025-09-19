@@ -5,6 +5,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const authRoutes = require("./routes/auth");
 const productRoutes = require("./routes/productRoute");
+
 const cloudinary = require("cloudinary").v2;
 
 dotenv.config();
@@ -49,6 +50,7 @@ cloudinary.config({
 // ✅ Routes
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/dresses", productRoutes);
+
 
 // 404 handler
 app.use((req, res) => {

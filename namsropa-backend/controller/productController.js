@@ -1,5 +1,6 @@
 const Dress = require("../model/Product");
 const cloudinary = require("cloudinary").v2;
+const mongoose = require("mongoose");
 
 // Configure Cloudinary
 cloudinary.config({
@@ -160,21 +161,20 @@ const updateDress = async (req, res) => {
 // DELETE dress (also delete images from Cloudinary)
 const deleteDress = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid ID format" });
+    }
     const dress = await Dress.findById(req.params.id);
     if (!dress) return res.status(404).json({ message: "Dress not found" });
-
-    if (dress.images && dress.images.length) {
-      for (const img of dress.images) {
-        if (img.publicId) await cloudinary.uploader.destroy(img.publicId);
-      }
-    }
-
+  
     await Dress.findByIdAndDelete(req.params.id);
     res.json({ message: "Dress deleted successfully" });
   } catch (err) {
+    console.error("deleteDress error:", err);
     res.status(500).json({ message: err.message });
   }
 };
+
 
 // GET featured dresses
 const getFeaturedDresses = async (req, res) => {
@@ -196,15 +196,56 @@ const getTrendingDresses = async (req, res) => {
   }
 };
 
+//Get category by id
+
+// GET unique categories from dresses
+// GET unique categories from dresses
+// GET unique categories from dresses
+const getCategories = async (req, res) => {
+  try {
+    const categories = await Dress.distinct("category");
+
+    const formatted = categories
+      .filter(cat => typeof cat === "string" && cat.trim() !== "") // null/undefined hatao
+      .map(cat => ({
+        name: cat.charAt(0).toUpperCase() + cat.slice(1),
+        slug: cat.toLowerCase().replace(/\s+/g, "-")
+      }));
+
+    res.json({ categories: formatted });
+  } catch (err) {
+    console.error("getCategories error:", err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
+
+
 // GET dresses by category
 const getDressesByCategory = async (req, res) => {
   try {
-    const dresses = await Dress.find({ category: req.params.category });
+    const slug = req.params.category; // ex: "jumpsuits"
+
+    // Pehle category list lao
+    const categories = await Dress.distinct("category");
+
+    // Slug match karke original category name nikaalo
+    const matchedCategory = categories.find(cat =>
+      cat && cat.toLowerCase().replace(/\s+/g, "-") === slug
+    );
+
+    if (!matchedCategory) {
+      return res.json([]); // agar category nahi mili
+    }
+
+    const dresses = await Dress.find({ category: matchedCategory });
     res.json(dresses);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 // SEARCH dresses
 const searchDresses = async (req, res) => {
@@ -233,5 +274,6 @@ module.exports = {
   getFeaturedDresses,
   getTrendingDresses,
   getDressesByCategory,
-  searchDresses
+  searchDresses,
+  getCategories
 };

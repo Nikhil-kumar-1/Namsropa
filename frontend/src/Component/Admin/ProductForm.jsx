@@ -10,7 +10,7 @@ const ProductUploadForm = () => {
     price: "",
     originalPrice: "",
     description: "",
-    category: "casual",
+    category: "Tops",
     sizes: "",
     colors: "",
     inStock: true,
@@ -29,12 +29,13 @@ const ProductUploadForm = () => {
   const [previewImages, setPreviewImages] = useState([]);
 
   const categories = [
-    { value: "casual", label: "Casual" },
-    { value: "formal", label: "Formal" },
-    { value: "party", label: "Party" },
-    { value: "wedding", label: "Wedding" },
-    { value: "summer", label: "Summer" },
-    { value: "winter", label: "Winter" }
+    { value: "Dresses", label: "dresses" },
+        { value: "Tops", label: "tops" },
+        { value: "Bottoms", label: "bottoms" },
+        { value: "Jumpsuits", label: "jumpsuits" },
+        { value: "Coats", label: "coats" },
+        { value: "Bridesmaid", label: "bridesmaid" }
+
   ];
 
   const handleChange = (e) => {

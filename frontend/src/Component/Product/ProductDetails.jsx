@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addToCart } from "../../cartSlice";
 
 const ProductDetails = () => {
   const location = useLocation();
@@ -12,6 +14,34 @@ const ProductDetails = () => {
   const [showSizeChart, setShowSizeChart] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [scrollY, setScrollY] = useState(0);
+  const [openSection, setOpenSection] = useState(null);
+
+
+  const toggleSection = (section) => {
+    setOpenSection(openSection === section ? null : section);
+  };
+
+
+ 
+
+const dispatch = useDispatch();
+
+const handleAddToCart = () => {
+  if (!selectedSize && product.sizes?.length > 0) return alert("Select size");
+  if (!selectedColor && product.colors?.length > 0) return alert("Select color");
+
+  dispatch(
+    addToCart({
+      product,
+      quantity,
+      size: selectedSize,
+      color: selectedColor,
+    })
+  );
+
+  alert("Added to cart!");
+};
+
 
   // Handle scroll for parallax effect
   useEffect(() => {
@@ -231,14 +261,44 @@ const ProductDetails = () => {
               </div>
 
               {/* Description */}
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold text-yellow-400 mb-3 border-b border-yellow-800 pb-2">
-                  Description
-                </h3>
-                <p className="text-gray-300 leading-relaxed">
-                  {product.description || "No description available."}
-                </p>
-              </div>
+      <div className="mb-6">
+        <h3
+          className="text-lg font-semibold text-yellow-400 mb-3 border-b border-yellow-800 pb-2 cursor-pointer flex justify-between items-center"
+          onClick={() => toggleSection("description")}
+        >
+          Description
+          <span>{openSection === "description" ? "−" : "+"}</span>
+        </h3>
+        {openSection === "description" && (
+          <p className="text-gray-300 leading-relaxed">
+            {product.description || "No description available."}
+          </p>
+        )}
+      </div>
+
+      {/* Delivery & Returns */}
+      <div className="mb-6">
+        <h3
+          className="text-lg font-semibold text-yellow-400 mb-3 border-b border-yellow-800 pb-2 cursor-pointer flex justify-between items-center"
+          onClick={() => toggleSection("delivery")}
+        >
+          Delivery & Returns
+          <span>{openSection === "delivery" ? "−" : "+"}</span>
+        </h3>
+        {openSection === "delivery" && (
+          <p className="text-gray-300 leading-relaxed">
+            We offer complimentary express shipping.
+            <br />
+            <br />
+            Free returns are available worldwide. If your item is eligible for
+            return, you have 30 days from the date you receive your order to
+            follow this procedure.
+            <br />
+            <br />
+            See delivery and returns for more information.
+          </p>
+        )}
+      </div>
 
               {/* Color Selection */}
               {product.colors && product.colors.length > 0 && (
@@ -448,34 +508,31 @@ const ProductDetails = () => {
                   </div>
 
                   <div className="flex-1 ">
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="w-full cursor-pointer bg-yellow-500 text-black py-3 px-6 rounded-lg font-semibold hover:bg-yellow-400 transition-colors flex items-center justify-center shadow-lg"
-                      disabled={
-                        (!selectedSize &&
-                          product.sizes &&
-                          product.sizes.length > 0) ||
-                        (!selectedColor &&
-                          product.colors &&
-                          product.colors.length > 0)
-                      }
-                    >
-                      <svg
-                        className="w-5 h-5 mr-2 "
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-                        ></path>
-                      </svg>
-                      Add to Cart
-                    </motion.button>
+                   <motion.button
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      className="w-full cursor-pointer bg-yellow-500 text-black py-3 px-6 rounded-lg font-semibold hover:bg-yellow-400 transition-colors flex items-center justify-center shadow-lg"
+      disabled={
+        (!selectedSize && product.sizes?.length > 0) ||
+        (!selectedColor && product.colors?.length > 0)
+      }
+      onClick={handleAddToCart} // 🔥 Added functionality
+    >
+      <svg
+        className="w-5 h-5 mr-2"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+        ></path>
+      </svg>
+      Add to Cart
+    </motion.button>
                   </div>
                 </div>
               </div>

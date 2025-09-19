@@ -9,7 +9,8 @@ const {
   getFeaturedDresses,
   getTrendingDresses,
   getDressesByCategory,
-  searchDresses
+  searchDresses,
+  getCategories
 } = require('../controller/productController');
 
 // GET /api/dresses - Get all dresses with optional filtering
@@ -26,6 +27,8 @@ router.get('/search', searchDresses);
 
 // GET /api/dresses/category/:category - Get dresses by category
 router.get('/category/:category', getDressesByCategory);
+//unique category
+router.get("/categories", getCategories);
 
 // GET /api/dresses/:id - Get single dress by ID
 router.get('/:id', getDressById);
