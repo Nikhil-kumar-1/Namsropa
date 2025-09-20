@@ -23,26 +23,28 @@ export default function Login() {
         password,
       });
 
-      if (res.data.user) {
-        // Save token
-        localStorage.setItem("token", res.data.token);
+     if (res.data.user) {
+  const token = res.data.token;
+  const role = res.data.user.role; // e.g., "admin" or "user"
 
-        // Reset form
-        setEmail("");
-        setPassword("");
+  localStorage.setItem("token", token);
+  localStorage.setItem("userRole", role); // store role as string
 
-        // Set success message
-        setSuccess("✅ Login successful! Redirecting...");
+  // Reset form
+  setEmail("");
+  setPassword("");
 
-        // Redirect based on role
-        const role = res.data.user.role;
-        setTimeout(() => {
-          if (role === "admin") {
-            navigate("/admin");
-          } else {
-            navigate("/user/home");
-          }
-        }, 1500);
+  // Redirect
+  setTimeout(() => {
+    if (role === "admin") {
+      navigate("/admin");
+    } else {
+      navigate("/user/home");
+    }
+  }, 500);
+}
+      if (res.data.message) {
+        setSuccess("✅ Logged in successfully! Redirecting...");
       }
     } catch (err) {
       if (err.response?.status === 404) {
