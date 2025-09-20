@@ -2,9 +2,9 @@ const User = require("../model/User");
 const jwt = require("jsonwebtoken");
 
 // Token generate function
-const createToken = (userId) => {
-  return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
-    expiresIn: "1d", // token ek din ke liye valid
+const createToken = (userId, role) => {
+  return jwt.sign({ id: userId, role }, process.env.JWT_SECRET, {
+    expiresIn: "1d", // token valid for 1 day
   });
 };
 
@@ -12,8 +12,6 @@ const createToken = (userId) => {
 const signup_post = async (req, res) => {
   try {
     const { name, email, password, confirmPassword } = req.body;
-
-    console.log("📩 Signup request body:", req.body); // <-- Debugging
 
     if (!name || !email || !password || !confirmPassword) {
       return res.status(400).json({ error: "All fields are required" });
@@ -28,34 +26,33 @@ const signup_post = async (req, res) => {
       return res.status(400).json({ error: "Email already registered" });
     }
 
-    const user = new User({ name, email, password });
-    await user.save(); // <-- Yaha error aa sakta hai
+    // Create user with default role "user"
+    const user = new User({ name, email, password, role: "user" });
+    await user.save();
 
-    const token = createToken(user._id);
+    const token = createToken(user._id, user.role);
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false,
+      secure: false, // set true if using HTTPS
       sameSite: "strict",
     });
 
     res.status(201).json({
       message: "User registered successfully",
-      user: { id: user._id, name: user.name, email: user.email },
+      user: { id: user._id, name: user.name, email: user.email, role: user.role },
     });
   } catch (error) {
-    console.error("❌ Signup error:", error); // <-- Debugging
+    console.error("❌ Signup error:", error);
     res.status(500).json({ error: "Signup failed", details: error.message });
   }
 };
-
 
 // ✅ Login Controller
 const login_post = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Validation
     if (!email || !password) {
       return res.status(400).json({ error: "Email and Password are required" });
     }
@@ -63,7 +60,6 @@ const login_post = async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ error: "Invalid email or password" });
 
-    // Compare password
     const isMatch = await user.comparePassword(password);
     if (!isMatch) return res.status(400).json({ error: "Invalid email or password" });
 
@@ -77,7 +73,13 @@ const login_post = async (req, res) => {
       sameSite: "strict",
     });
 
-    res.json({ message: "Login successful", user: { id: user._id, name: user.name, email: user.email } });
+    // ✅ Include role in response
+    res.json({
+      message: "Login successful",
+      user: { id: user._id, name: user.name, email: user.email, role: user.role },
+      token, // optional, if frontend wants token
+    });
+
   } catch (error) {
     res.status(500).json({ error: "Login failed", details: error.message });
   }

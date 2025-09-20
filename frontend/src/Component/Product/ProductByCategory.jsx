@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import { backendUrl } from '../../config/config';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../../cartSlice'; // Import the addToCart action
 
 const CategoryPage = () => {
   const [clothes, setClothes] = useState([]);
@@ -11,6 +13,7 @@ const CategoryPage = () => {
   const [sortBy, setSortBy] = useState('newest');
   const { category } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch(); // Initialize dispatch
 
   // Fetch clothes based on category from URL
   useEffect(() => {
@@ -69,6 +72,48 @@ const CategoryPage = () => {
   // Handle category change
   const handleCategoryChange = (newCategory) => {
     navigate(`/category/${newCategory}`);
+  };
+
+  // Handle add to cart
+  const handleAddToCart = (e, product) => {
+    e.stopPropagation(); // Prevent navigating to product page
+    
+    // Create cart item with required properties
+    const cartItem = {
+      product: {
+        _id: product._id,
+        title: product.title,
+        price: product.price,
+        originalPrice: product.originalPrice,
+        discount: product.discount,
+        images: product.images,
+        image: product.image,
+        brand: product.brand,
+        rating: product.rating
+      },
+      quantity: 1,
+      size: null, // You might want to add size selection
+      color: null, // You might want to add color selection
+      customMeasurements: {} // You might want to add custom measurements
+    };
+    
+    // Dispatch addToCart action
+    dispatch(addToCart(cartItem));
+    
+    // Show success feedback (you could use a toast notification here)
+    console.log("Added to cart:", product.title);
+    
+    // Optional: Show a quick confirmation message
+    // You might want to implement a proper toast notification system
+    const button = e.target;
+    const originalText = button.innerHTML;
+    button.innerHTML = '✓ Added!';
+    button.classList.add('bg-green-500');
+    
+    setTimeout(() => {
+      button.innerHTML = originalText;
+      button.classList.remove('bg-green-500');
+    }, 1500);
   };
 
   // Get category display name
@@ -309,10 +354,7 @@ const CategoryPage = () => {
                       className="bg-yellow-500 text-black px-3 py-2 rounded-lg text-sm hover:bg-yellow-400 transition-all duration-300 flex items-center gap-1 font-serif"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        // Add to cart logic here
-                      }}
+                      onClick={(e) => handleAddToCart(e, item)}
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"

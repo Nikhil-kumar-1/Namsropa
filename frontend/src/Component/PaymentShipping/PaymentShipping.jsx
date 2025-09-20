@@ -466,17 +466,7 @@ const PaymentsShipping = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-100 border-t border-gray-200 py-8 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <p className="text-gray-600 mb-2">
-            © 2023 NamSropa. All rights reserved.
-          </p>
-          <p className="text-sm text-gray-500">
-            Secure shopping and reliable shipping guaranteed
-          </p>
-        </div>
-      </footer>
+      
     </div>
   );
 };

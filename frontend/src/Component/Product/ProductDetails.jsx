@@ -10,38 +10,55 @@ const ProductDetails = () => {
   const { product } = location.state || {};
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState("");
+  const [selectedSizeType, setSelectedSizeType] = useState("standard");
   const [selectedColor, setSelectedColor] = useState("");
   const [showSizeChart, setShowSizeChart] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [scrollY, setScrollY] = useState(0);
   const [openSection, setOpenSection] = useState(null);
-
+  
+  // Custom measurements state
+  const [customMeasurements, setCustomMeasurements] = useState({
+    shoulder: "",
+    chest: "",
+    bust: "",
+    underBust: "",
+    waist: "",
+    hip: "",
+    upperArm: "",
+    hpsToBust: "",
+    hpsToWaist: "",
+    hpsToKnee: ""
+  });
 
   const toggleSection = (section) => {
     setOpenSection(openSection === section ? null : section);
   };
 
+  const dispatch = useDispatch();
 
- 
+  const handleAddToCart = () => {
+    if (selectedSizeType === "standard" && !selectedSize && product.sizes?.length > 0) {
+      return alert("Select size");
+    }
+    if (selectedSizeType === "custom" && Object.values(customMeasurements).some(m => m === "")) {
+      return alert("Please fill all custom measurements");
+    }
+    if (!selectedColor && product.colors?.length > 0) return alert("Select color");
 
-const dispatch = useDispatch();
+    dispatch(
+      addToCart({
+        product,
+        quantity,
+        size: selectedSizeType === "standard" ? selectedSize : "Custom",
+        customMeasurements: selectedSizeType === "custom" ? customMeasurements : null,
+        sizeType: selectedSizeType,
+        color: selectedColor,
+      })
+    );
 
-const handleAddToCart = () => {
-  if (!selectedSize && product.sizes?.length > 0) return alert("Select size");
-  if (!selectedColor && product.colors?.length > 0) return alert("Select color");
-
-  dispatch(
-    addToCart({
-      product,
-      quantity,
-      size: selectedSize,
-      color: selectedColor,
-    })
-  );
-
-  alert("Added to cart!");
-};
-
+    alert("Added to cart!");
+  };
 
   // Handle scroll for parallax effect
   useEffect(() => {
@@ -69,12 +86,54 @@ const handleAddToCart = () => {
       L: [38, 30, 40],
       XL: [40, 32, 42],
       XXL: [42, 34, 44],
+      "0": [32, 24, 34],
+      "2": [33, 25, 35],
+      "4": [34, 26, 36],
+      "6": [35, 27, 37],
+      "8": [36, 28, 38],
+      "10": [37, 29, 39],
+      "12": [38, 30, 40],
+      "14": [39, 31, 41],
+      "16": [40, 32, 42],
+      "18": [41, 33, 43],
+      "16w": [42, 34, 44],
+      "18w": [43, 35, 45],
+      "20w": [44, 36, 46],
+      "22w": [45, 37, 47],
+      "24w": [46, 38, 48],
+      "26w": [47, 39, 49],
+      "28w": [48, 40, 50],
+      "30w": [49, 41, 51],
+      "32w": [50, 42, 52],
+      "34w": [51, 43, 53],
+      "36w": [52, 44, 54],
     },
   };
 
   // Calculate discounted price
   const discountedPrice =
     product.price - product.price * (product.discount / 100);
+
+  // Generate measurement options
+  const generateMeasurementOptions = (start, end) => {
+    const options = [];
+    for (let i = start; i <= end; i++) {
+      options.push(
+        <option key={i} value={`${i}"`}>
+          {i}"
+        </option>
+      );
+    }
+    return options;
+  };
+
+  // Handle custom measurement change
+  const handleMeasurementChange = (measurement, value) => {
+    setCustomMeasurements({
+      ...customMeasurements,
+      [measurement]: value
+    });
+  };
 
   return (
     <div className="min-h-screen bg-black">
@@ -261,44 +320,44 @@ const handleAddToCart = () => {
               </div>
 
               {/* Description */}
-      <div className="mb-6">
-        <h3
-          className="text-lg font-semibold text-yellow-400 mb-3 border-b border-yellow-800 pb-2 cursor-pointer flex justify-between items-center"
-          onClick={() => toggleSection("description")}
-        >
-          Description
-          <span>{openSection === "description" ? "−" : "+"}</span>
-        </h3>
-        {openSection === "description" && (
-          <p className="text-gray-300 leading-relaxed">
-            {product.description || "No description available."}
-          </p>
-        )}
-      </div>
+              <div className="mb-6">
+                <h3
+                  className="text-lg font-semibold text-yellow-400 mb-3 border-b border-yellow-800 pb-2 cursor-pointer flex justify-between items-center"
+                  onClick={() => toggleSection("description")}
+                >
+                  Description
+                  <span>{openSection === "description" ? "−" : "+"}</span>
+                </h3>
+                {openSection === "description" && (
+                  <p className="text-gray-300 leading-relaxed">
+                    {product.description || "No description available."}
+                  </p>
+                )}
+              </div>
 
-      {/* Delivery & Returns */}
-      <div className="mb-6">
-        <h3
-          className="text-lg font-semibold text-yellow-400 mb-3 border-b border-yellow-800 pb-2 cursor-pointer flex justify-between items-center"
-          onClick={() => toggleSection("delivery")}
-        >
-          Delivery & Returns
-          <span>{openSection === "delivery" ? "−" : "+"}</span>
-        </h3>
-        {openSection === "delivery" && (
-          <p className="text-gray-300 leading-relaxed">
-            We offer complimentary express shipping.
-            <br />
-            <br />
-            Free returns are available worldwide. If your item is eligible for
-            return, you have 30 days from the date you receive your order to
-            follow this procedure.
-            <br />
-            <br />
-            See delivery and returns for more information.
-          </p>
-        )}
-      </div>
+              {/* Delivery & Returns */}
+              <div className="mb-6">
+                <h3
+                  className="text-lg font-semibold text-yellow-400 mb-3 border-b border-yellow-800 pb-2 cursor-pointer flex justify-between items-center"
+                  onClick={() => toggleSection("delivery")}
+                >
+                  Delivery & Returns
+                  <span>{openSection === "delivery" ? "−" : "+"}</span>
+                </h3>
+                {openSection === "delivery" && (
+                  <p className="text-gray-300 leading-relaxed">
+                    We offer complimentary express shipping.
+                    <br />
+                    <br />
+                    Free returns are available worldwide. If your item is eligible for
+                    return, you have 30 days from the date you receive your order to
+                    follow this procedure.
+                    <br />
+                    <br />
+                    See delivery and returns for more information.
+                  </p>
+                )}
+              </div>
 
               {/* Color Selection */}
               {product.colors && product.colors.length > 0 && (
@@ -340,148 +399,514 @@ const handleAddToCart = () => {
                 </div>
               )}
 
-              {/* Size Selection */}
-              {product.sizes && product.sizes.length > 0 && (
-                <div className="mb-6">
-                  <div className="flex items-center justify-between mb-3 border-b border-yellow-800 pb-2">
-                    <h3 className="text-lg font-semibold text-yellow-400">
-                      Size
-                    </h3>
-                    <button
-                      className="text-sm cursor-pointer text-yellow-500 hover:text-yellow-400 transition-colors flex items-center"
-                      onClick={() => setShowSizeChart(!showSizeChart)}
-                    >
-                      Size Guide
-                      <svg
-                        className="w-4 h-4 ml-1"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                    </button>
-                  </div>
+              {/* Size Type Selection */}
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-yellow-400 mb-3 border-b border-yellow-800 pb-2">
+                  Select Size
+                </h3>
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className={`py-3 px-4 rounded-lg border text-center ${
+                      selectedSizeType === "standard"
+                        ? "bg-yellow-500 text-black border-yellow-500 font-bold"
+                        : "bg-gray-800 text-gray-300 border-gray-700 hover:border-yellow-500/50"
+                    } transition-all duration-200`}
+                    onClick={() => setSelectedSizeType("standard")}
+                  >
+                    Standard Size
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className={`py-3 px-4 rounded-lg border text-center ${
+                      selectedSizeType === "custom"
+                        ? "bg-yellow-500 text-black border-yellow-500 font-bold"
+                        : "bg-gray-800 text-gray-300 border-gray-700 hover:border-yellow-500/50"
+                    } transition-all duration-200`}
+                    onClick={() => setSelectedSizeType("custom")}
+                  >
+                    Custom Size
+                  </motion.button>
+                </div>
+                
+                <p className="text-gray-400 text-sm mb-4">
+                  Size charts vary across brands, check eShakti's size chart.
+                </p>
 
-                  <div className="grid grid-cols-5 gap-2">
-                    {product.sizes.map((size) => (
-                      <motion.button
-                        key={size}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className={`py-2 px-4 rounded-lg border ${
-                          selectedSize === size
-                            ? "bg-yellow-500 text-black border-yellow-500 font-bold"
-                            : "bg-gray-800 text-gray-300 border-gray-700 hover:border-yellow-500/50"
-                        } transition-all duration-200`}
-                        onClick={() => setSelectedSize(size)}
+                {/* Standard Size Selection */}
+                {selectedSizeType === "standard" && (
+                  <>
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-md font-semibold text-yellow-400">
+                        Select Standard Size
+                      </h3>
+                      <button
+                        className="text-sm cursor-pointer text-yellow-500 hover:text-yellow-400 transition-colors flex items-center"
+                        onClick={() => setShowSizeChart(!showSizeChart)}
                       >
-                        {size}
-                      </motion.button>
-                    ))}
-                  </div>
+                        Size Guide
+                        <svg
+                          className="w-4 h-4 ml-1"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                      </button>
+                    </div>
 
-                  {/* Size Chart Modal */}
-                  {showSizeChart && (
-                    <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="bg-gray-900 rounded-xl max-w-2xl w-full p-6 border border-yellow-800"
-                      >
-                        <div className="flex justify-between items-center mb-4 border-b border-yellow-800 pb-3">
-                          <h3 className="text-xl font-bold text-yellow-400">
-                            Size Guide
-                          </h3>
-                          <button
-                            onClick={() => setShowSizeChart(false)}
-                            className="text-gray-400 hover:text-yellow-400 transition-colors"
+                    <div className="space-y-2">
+                      {/* Row 1: XS, S, M */}
+                      <div className="flex flex-wrap gap-2">
+                        <span className="text-yellow-400 text-sm font-medium w-6">XS:</span>
+                        {["XS", "0", "2"].map((size) => (
+                          <motion.button
+                            key={size}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className={`py-1 px-2 text-xs rounded border min-w-[2rem] ${
+                              selectedSize === size
+                                ? "bg-yellow-500 text-black border-yellow-500 font-bold"
+                                : "bg-gray-800 text-gray-300 border-gray-700 hover:border-yellow-500/50"
+                            } transition-all duration-200`}
+                            onClick={() => setSelectedSize(size)}
                           >
-                            <svg
-                              className="w-6 h-6"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M6 18L18 6M6 6l12 12"
-                              ></path>
-                            </svg>
-                          </button>
-                        </div>
+                            {size}
+                          </motion.button>
+                        ))}
+                        
+                        <span className="text-yellow-400 text-sm font-medium w-6 ml-2">S:</span>
+                        {["S", "4", "6"].map((size) => (
+                          <motion.button
+                            key={size}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className={`py-1 px-2 text-xs rounded border min-w-[2rem] ${
+                              selectedSize === size
+                                ? "bg-yellow-500 text-black border-yellow-500 font-bold"
+                                : "bg-gray-800 text-gray-300 border-gray-700 hover:border-yellow-500/50"
+                            } transition-all duration-200`}
+                            onClick={() => setSelectedSize(size)}
+                          >
+                            {size}
+                          </motion.button>
+                        ))}
+                        
+                        <span className="text-yellow-400 text-sm font-medium w-6 ml-2">M:</span>
+                        {["M", "8", "10"].map((size) => (
+                          <motion.button
+                            key={size}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className={`py-1 px-2 text-xs rounded border min-w-[2rem] ${
+                              selectedSize === size
+                                ? "bg-yellow-500 text-black border-yellow-500 font-bold"
+                                : "bg-gray-800 text-gray-300 border-gray-700 hover:border-yellow-500/50"
+                            } transition-all duration-200`}
+                            onClick={() => setSelectedSize(size)}
+                          >
+                            {size}
+                          </motion.button>
+                        ))}
+                      </div>
 
-                        <div className="overflow-x-auto h-50">
-                          <table className="min-w-full bg-gray-800 rounded-lg overflow-hidden">
-                            <thead>
-                              <tr className="bg-yellow-900/30">
-                                <th className="py-3 px-4 text-left text-yellow-400 font-semibold">
-                                  Size
-                                </th>
-                                {sizeChart.measurements.map((measure, idx) => (
-                                  <th
+                      {/* Row 2: L, XL, 1X */}
+                      <div className="flex flex-wrap gap-2">
+                        <span className="text-yellow-400 text-sm font-medium w-6">L:</span>
+                        {["L", "12", "14"].map((size) => (
+                          <motion.button
+                            key={size}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className={`py-1 px-2 text-xs rounded border min-w-[2rem] ${
+                              selectedSize === size
+                                ? "bg-yellow-500 text-black border-yellow-500 font-bold"
+                                : "bg-gray-800 text-gray-300 border-gray-700 hover:border-yellow-500/50"
+                            } transition-all duration-200`}
+                            onClick={() => setSelectedSize(size)}
+                          >
+                            {size}
+                          </motion.button>
+                        ))}
+                        
+                        <span className="text-yellow-400 text-sm font-medium w-6 ml-2">XL:</span>
+                        {["XL", "16", "18"].map((size) => (
+                          <motion.button
+                            key={size}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className={`py-1 px-2 text-xs rounded border min-w-[2rem] ${
+                              selectedSize === size
+                                ? "bg-yellow-500 text-black border-yellow-500 font-bold"
+                                : "bg-gray-800 text-gray-300 border-gray-700 hover:border-yellow-500/50"
+                            } transition-all duration-200`}
+                            onClick={() => setSelectedSize(size)}
+                          >
+                            {size}
+                          </motion.button>
+                        ))}
+                        
+                        <span className="text-yellow-400 text-sm font-medium w-6 ml-2">1X:</span>
+                        {["1X", "16w", "18w"].map((size) => (
+                          <motion.button
+                            key={size}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className={`py-1 px-2 text-xs rounded border min-w-[2rem] ${
+                              selectedSize === size
+                                ? "bg-yellow-500 text-black border-yellow-500 font-bold"
+                                : "bg-gray-800 text-gray-300 border-gray-700 hover:border-yellow-500/50"
+                            } transition-all duration-200`}
+                            onClick={() => setSelectedSize(size)}
+                          >
+                            {size}
+                          </motion.button>
+                        ))}
+                      </div>
+
+                      {/* Row 3: 2X, 3X, 4X */}
+                      <div className="flex flex-wrap gap-2">
+                        <span className="text-yellow-400 text-sm font-medium w-6">2X:</span>
+                        {["2X", "20w", "22w"].map((size) => (
+                          <motion.button
+                            key={size}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className={`py-1 px-2 text-xs rounded border min-w-[2rem] ${
+                              selectedSize === size
+                                ? "bg-yellow-500 text-black border-yellow-500 font-bold"
+                                : "bg-gray-800 text-gray-300 border-gray-700 hover:border-yellow-500/50"
+                            } transition-all duration-200`}
+                            onClick={() => setSelectedSize(size)}
+                          >
+                            {size}
+                          </motion.button>
+                        ))}
+                        
+                        <span className="text-yellow-400 text-sm font-medium w-6 ml-2">3X:</span>
+                        {["3X", "24w", "26w"].map((size) => (
+                          <motion.button
+                            key={size}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className={`py-1 px-2 text-xs rounded border min-w-[2rem] ${
+                              selectedSize === size
+                                ? "bg-yellow-500 text-black border-yellow-500 font-bold"
+                                : "bg-gray-800 text-gray-300 border-gray-700 hover:border-yellow-500/50"
+                            } transition-all duration-200`}
+                            onClick={() => setSelectedSize(size)}
+                          >
+                            {size}
+                          </motion.button>
+                        ))}
+                        
+                        <span className="text-yellow-400 text-sm font-medium w-6 ml-2">4X:</span>
+                        {["4X", "28w", "30w"].map((size) => (
+                          <motion.button
+                            key={size}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className={`py-1 px-2 text-xs rounded border min-w-[2rem] ${
+                              selectedSize === size
+                                ? "bg-yellow-500 text-black border-yellow-500 font-bold"
+                                : "bg-gray-800 text-gray-300 border-gray-700 hover:border-yellow-500/50"
+                            } transition-all duration-200`}
+                            onClick={() => setSelectedSize(size)}
+                          >
+                            {size}
+                          </motion.button>
+                        ))}
+                      </div>
+
+                      {/* Row 4: 5X, 6X */}
+                      <div className="flex flex-wrap gap-2">
+                        <span className="text-yellow-400 text-sm font-medium w-6">5X:</span>
+                        {["5X", "32w", "34w"].map((size) => (
+                          <motion.button
+                            key={size}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className={`py-1 px-2 text-xs rounded border min-w-[2rem] ${
+                              selectedSize === size
+                                ? "bg-yellow-500 text-black border-yellow-500 font-bold"
+                                : "bg-gray-800 text-gray-300 border-gray-700 hover:border-yellow-500/50"
+                            } transition-all duration-200`}
+                            onClick={() => setSelectedSize(size)}
+                          >
+                            {size}
+                          </motion.button>
+                        ))}
+                        
+                        <span className="text-yellow-400 text-sm font-medium w-6 ml-2">6X:</span>
+                        {["6X", "36w"].map((size) => (
+                          <motion.button
+                            key={size}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className={`py-1 px-2 text-xs rounded border min-w-[2rem] ${
+                              selectedSize === size
+                                ? "bg-yellow-500 text-black border-yellow-500 font-bold"
+                                : "bg-gray-800 text-gray-300 border-gray-700 hover:border-yellow-500/50"
+                            } transition-all duration-200`}
+                            onClick={() => setSelectedSize(size)}
+                          >
+                            {size}
+                          </motion.button>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* Custom Size Selection */}
+                {selectedSizeType === "custom" && (
+                  <div className="space-y-4">
+                    <p className="text-yellow-400 text-sm">
+                      Please provide your measurements for a custom fit:
+                    </p>
+                    
+                    {/* Required Measurements */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm text-yellow-400 mb-1">Shoulder</label>
+                        <select 
+                          className="w-full bg-gray-800 border border-yellow-800 rounded-lg px-3 py-2 text-white"
+                          value={customMeasurements.shoulder}
+                          onChange={(e) => handleMeasurementChange("shoulder", e.target.value)}
+                        >
+                          <option value="">select</option>
+                          {generateMeasurementOptions(11, 25)}
+                        </select>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm text-yellow-400 mb-1">Chest</label>
+                        <select 
+                          className="w-full bg-gray-800 border border-yellow-800 rounded-lg px-3 py-2 text-white"
+                          value={customMeasurements.chest}
+                          onChange={(e) => handleMeasurementChange("chest", e.target.value)}
+                        >
+                          <option value="">select</option>
+                          {generateMeasurementOptions(20, 100)}
+                        </select>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm text-yellow-400 mb-1">Bust</label>
+                        <select 
+                          className="w-full bg-gray-800 border border-yellow-800 rounded-lg px-3 py-2 text-white"
+                          value={customMeasurements.bust}
+                          onChange={(e) => handleMeasurementChange("bust", e.target.value)}
+                        >
+                          <option value="">select</option>
+                          {generateMeasurementOptions(20, 100)}
+                        </select>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm text-yellow-400 mb-1">Under Bust</label>
+                        <select 
+                          className="w-full bg-gray-800 border border-yellow-800 rounded-lg px-3 py-2 text-white"
+                          value={customMeasurements.underBust}
+                          onChange={(e) => handleMeasurementChange("underBust", e.target.value)}
+                        >
+                          <option value="">select</option>
+                          {generateMeasurementOptions(20, 100)}
+                        </select>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm text-yellow-400 mb-1">Waist</label>
+                        <select 
+                          className="w-full bg-gray-800 border border-yellow-800 rounded-lg px-3 py-2 text-white"
+                          value={customMeasurements.waist}
+                          onChange={(e) => handleMeasurementChange("waist", e.target.value)}
+                        >
+                          <option value="">select</option>
+                          {generateMeasurementOptions(20, 100)}
+                        </select>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm text-yellow-400 mb-1">Hip</label>
+                        <select 
+                          className="w-full bg-gray-800 border border-yellow-800 rounded-lg px-3 py-2 text-white"
+                          value={customMeasurements.hip}
+                          onChange={(e) => handleMeasurementChange("hip", e.target.value)}
+                        >
+                          <option value="">select</option>
+                          {generateMeasurementOptions(20, 100)}
+                        </select>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm text-yellow-400 mb-1">Upper Arm</label>
+                        <select 
+                          className="w-full bg-gray-800 border border-yellow-800 rounded-lg px-3 py-2 text-white"
+                          value={customMeasurements.upperArm}
+                          onChange={(e) => handleMeasurementChange("upperArm", e.target.value)}
+                        >
+                          <option value="">select</option>
+                          {generateMeasurementOptions(9, 100)}
+                        </select>
+                      </div>
+                    </div>
+                    
+                    {/* Optional Measurements */}
+                    <div className="mt-6">
+                      <h4 className="text-md font-semibold text-yellow-400 mb-3">
+                        Optional Measurements
+                      </h4>
+                      <p className="text-gray-400 text-sm mb-3">
+                        The measurements below are optional. If you have a long torso or long legs, 
+                        please consider providing them to help us achieve a great fit. For best results, 
+                        please ask someone to help measure you.
+                      </p>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-sm text-yellow-400 mb-1">HPS to Bust Point</label>
+                          <select 
+                            className="w-full bg-gray-800 border border-yellow-800 rounded-lg px-3 py-2 text-white"
+                            value={customMeasurements.hpsToBust}
+                            onChange={(e) => handleMeasurementChange("hpsToBust", e.target.value)}
+                          >
+                            <option value="">select</option>
+                            {generateMeasurementOptions(5, 100)}
+                          </select>
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm text-yellow-400 mb-1">HPS to Waist</label>
+                          <select 
+                            className="w-full bg-gray-800 border border-yellow-800 rounded-lg px-3 py-2 text-white"
+                            value={customMeasurements.hpsToWaist}
+                            onChange={(e) => handleMeasurementChange("hpsToWaist", e.target.value)}
+                          >
+                            <option value="">select</option>
+                            {generateMeasurementOptions(5, 100)}
+                          </select>
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm text-yellow-400 mb-1">HPS to Knee</label>
+                          <select 
+                            className="w-full bg-gray-800 border border-yellow-800 rounded-lg px-3 py-2 text-white"
+                            value={customMeasurements.hpsToKnee}
+                            onChange={(e) => handleMeasurementChange("hpsToKnee", e.target.value)}
+                          >
+                            <option value="">select</option>
+                            {generateMeasurementOptions(5, 100)}
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Size Chart Modal */}
+              {showSizeChart && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="bg-gray-900 rounded-xl max-w-4xl w-full p-6 border border-yellow-800 max-h-screen overflow-y-auto"
+                  >
+                    <div className="flex justify-between items-center mb-4 border-b border-yellow-800 pb-3">
+                      <h3 className="text-xl font-bold text-yellow-400">
+                        Size Guide
+                      </h3>
+                      <button
+                        onClick={() => setShowSizeChart(false)}
+                        className="text-gray-400 hover:text-yellow-400 transition-colors"
+                      >
+                        <svg
+                          className="w-6 h-6"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          ></path>
+                        </svg>
+                      </button>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full bg-gray-800 rounded-lg overflow-hidden">
+                        <thead>
+                          <tr className="bg-yellow-900/30">
+                            <th className="py-3 px-4 text-left text-yellow-400 font-semibold">
+                              Size
+                            </th>
+                            {sizeChart.measurements.map((measure, idx) => (
+                              <th
+                                key={idx}
+                                className="py-3 px-4 text-center text-yellow-400 font-semibold"
+                              >
+                                {measure}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {Object.entries(sizeChart.sizes).map(
+                            ([size, measurements]) => (
+                              <tr
+                                key={size}
+                                className="border-b border-yellow-800/20 even:bg-gray-800/50"
+                              >
+                                <td className="py-3 px-4 text-center font-medium text-white">
+                                  {size}
+                                </td>
+                                {measurements.map((value, idx) => (
+                                  <td
                                     key={idx}
-                                    className="py-3 px-4 text-center text-yellow-400 font-semibold"
+                                    className="py-3 px-4 text-center text-gray-300"
                                   >
-                                    {measure}
-                                  </th>
+                                    {value}"
+                                  </td>
                                 ))}
                               </tr>
-                            </thead>
-                            <tbody>
-                              {Object.entries(sizeChart.sizes).map(
-                                ([size, measurements]) => (
-                                  <tr
-                                    key={size}
-                                    className="border-b border-yellow-800/20 even:bg-gray-800/50"
-                                  >
-                                    <td className="py-3 px-4 text-center font-medium text-white">
-                                      {size}
-                                    </td>
-                                    {measurements.map((value, idx) => (
-                                      <td
-                                        key={idx}
-                                        className="py-3 px-4 text-center text-gray-300"
-                                      >
-                                        {value}"
-                                      </td>
-                                    ))}
-                                  </tr>
-                                )
-                              )}
-                            </tbody>
-                          </table>
-                        </div>
-
-                        <div className="mt-6 text-sm text-gray-400">
-                          <p className="text-yellow-400 mb-2">
-                            How to measure:
-                          </p>
-                          <ul className="list-disc pl-5 space-y-1">
-                            <li>
-                              <strong>Bust:</strong> Measure around the fullest
-                              part of your bust
-                            </li>
-                            <li>
-                              <strong>Waist:</strong> Measure around the
-                              narrowest part of your waist
-                            </li>
-                            <li>
-                              <strong>Hips:</strong> Measure around the fullest
-                              part of your hips
-                            </li>
-                          </ul>
-                        </div>
-                      </motion.div>
+                            )
+                          )}
+                        </tbody>
+                      </table>
                     </div>
-                  )}
+
+                    <div className="mt-6 text-sm text-gray-400">
+                      <p className="text-yellow-400 mb-2">
+                        How to measure:
+                      </p>
+                      <ul className="list-disc pl-5 space-y-1">
+                        <li>
+                          <strong>Bust:</strong> Measure around the fullest
+                          part of your bust
+                        </li>
+                        <li>
+                          <strong>Waist:</strong> Measure around the
+                          narrowest part of your waist
+                        </li>
+                        <li>
+                          <strong>Hips:</strong> Measure around the fullest
+                          part of your hips
+                        </li>
+                      </ul>
+                    </div>
+                  </motion.div>
                 </div>
               )}
 
@@ -513,10 +938,11 @@ const handleAddToCart = () => {
       whileTap={{ scale: 0.98 }}
       className="w-full cursor-pointer bg-yellow-500 text-black py-3 px-6 rounded-lg font-semibold hover:bg-yellow-400 transition-colors flex items-center justify-center shadow-lg"
       disabled={
-        (!selectedSize && product.sizes?.length > 0) ||
+        (selectedSizeType === "standard" && !selectedSize && product.sizes?.length > 0) ||
+        (selectedSizeType === "custom" && Object.values(customMeasurements).some(m => m === "")) ||
         (!selectedColor && product.colors?.length > 0)
       }
-      onClick={handleAddToCart} // 🔥 Added functionality
+      onClick={handleAddToCart}
     >
       <svg
         className="w-5 h-5 mr-2"

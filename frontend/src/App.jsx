@@ -1,14 +1,12 @@
 // src/App.jsx
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
 
 import AboutPage from "./Component/About/AboutPage";
-
-import Navbar from "./Component/Home/Navbar"
+import Navbar from "./Component/Home/Navbar";
 import Footer from "./Component/Home/Footer/Footer";
 import HOME from "./Component/Home/Home";
 import Login from "./Component/Login/Login";
-import NotFound from "./Component/NotFound/NotFound";
 import Signup from "./Component/Signup/Signup";
 import PrivacyPolicy from "./Component/Privacy/Privacy";
 import PaymentsShipping from "./Component/PaymentShipping/PaymentShipping";
@@ -21,9 +19,23 @@ import ProductByCategory from "./Component/Product/ProductByCategory";
 import ScrollToTop from "./Component/ScrollToTop";
 import Cart from "./Component/Cart/Cart";
 import SizeChart from "./Component/SizeAndChart/SizeChart";
+import NotFound from "./Component/NotFound/NotFound";
 
+// ✅ ProtectedRoute component
+const ProtectedRoute = ({ children, role }) => {
+  const token = localStorage.getItem("token");
+  const userRole = localStorage.getItem("userRole");
 
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
 
+  if (role && userRole !== role) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+};
 
 const AppContent = () => {
   const location = useLocation();
@@ -33,14 +45,11 @@ const AppContent = () => {
 
   return (
     <>
-     <ScrollToTop />
+      <ScrollToTop />
       {!isAdminRoute && <Navbar />}
       
-     
       <Routes>
-        
         <Route path="/" element={<HOME />} />
-        
         <Route path="/about" element={<AboutPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
@@ -48,30 +57,34 @@ const AppContent = () => {
         <Route path="/payment-shipping" element={<PaymentsShipping />} />
         <Route path="/returns" element={<ReturnsCancellations />} />
         <Route path="/contact" element={<ContactUs />} />   
-        <Route path="/products" element={<Product/>} /> 
+        <Route path="/products" element={<Product />} /> 
         <Route path="/product/:id" element={<ProductDetails />} /> 
         <Route path="/category/:category" element={<ProductByCategory />} />
         <Route path="/cart" element={<Cart />} /> 
-        <Route path="/size-chart" element={<SizeChart/>} />
-        <Route path="/admin" element={<AdminDashboard />} />
-         
-        
-        
-        <Route path="*" element={<NotFound />} />
+        <Route path="/size-chart" element={<SizeChart />} />
 
-        ✅ Protected Admin Route
+        {/* ✅ Protected Admin Route */}
+        <Route 
+          path="/admin" 
+          element={
+            <ProtectedRoute role="admin">
+              <AdminDashboard />
+            </ProtectedRoute>
+          } 
+        />
+
+        <Route path="*" element={<NotFound />} />
       </Routes>
+
       {!isAdminRoute && <Footer />}
     </>
   );
 };
 
-const App = () => {
-  return (
-    <Router>
-      <AppContent />
-    </Router>
-  );
-};
+const App = () => (
+  <Router>
+    <AppContent />
+  </Router>
+);
 
 export default App;

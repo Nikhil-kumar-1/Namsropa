@@ -25,7 +25,7 @@ const AboutSection = () => {
 
       {/* Heritage Section */}
       <section className="py-16 px-6">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div className="overflow-hidden max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Text */}
           <motion.div
             initial={{ opacity: 0, x: -40 }}
@@ -60,7 +60,7 @@ const AboutSection = () => {
             viewport={{ once: true }}
             className="relative"
           >
-            <div className="aspect-square bg-gray-800 rounded-lg overflow-hidden">
+            <div className="aspect-square  bg-gray-800 rounded-lg overflow-hidden">
               <img
                 src="https://plus.unsplash.com/premium_photo-1663013425512-23e2050e694d?w=600&auto=format&fit=crop&q=60"
                 alt="Craftsmanship"

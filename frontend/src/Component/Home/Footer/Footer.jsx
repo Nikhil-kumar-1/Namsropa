@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   FaHome, 
@@ -15,26 +17,31 @@ import {
   FaChevronUp,
   FaChevronDown
 } from "react-icons/fa";
-import { Link } from "react-router-dom";
+
+
+
+
 
 const Footer = () => {
   const [activeTab, setActiveTab] = useState("home");
   const [expandedSection, setExpandedSection] = useState(null);
   const [email, setEmail] = useState("");
 
+  const navigate = useNavigate();
+
   const quickLinks = [
     { name: "Home", path: "/", icon: <FaHome /> },
-    { name: "Dresses", path: "/dresses", icon: <FaShoppingBag /> },
-    { name: "Tops", path: "/tops", icon: <FaShoppingBag /> },
-    { name: "Bottoms", path: "/bottoms", icon: <FaShoppingBag /> },
-    { name: "Jumpsuits", path: "/jumpsuits", icon: <FaShoppingBag /> },
-    { name: "Coats", path: "/coats", icon: <FaShoppingBag /> },
-    { name: "Bridesmaid", path: "/bridesmaid", icon: <FaHeart /> },
+    { name: "Dresses", path: "/products", icon: <FaShoppingBag /> },
+    { name: "Tops", path: "/category/tops", icon: <FaShoppingBag /> },
+    { name: "Bottoms", path: "/category/bottoms", icon: <FaShoppingBag /> },
+    { name: "Jumpsuits", path: "/category/jumpsuits", icon: <FaShoppingBag /> },
+    { name: "Coats", path: "/category/coats", icon: <FaShoppingBag /> },
+    { name: "Bridesmaid", path: "/category/bridesmaid", icon: <FaHeart /> },
   ];
 
   const policies = [
     { name: "Privacy Policy", path: "/privacy-policy" },
-    { name: "Terms & Conditions", path: "/terms" },
+    // { name: "Terms & Conditions", path: "/terms" },
     { name: "Return & Refund", path: "/returns" },
     { name: "Size-Chart", path: "/size-chart" },
     { name: "Payment & Shipping", path: "/payment-shipping" },
@@ -58,6 +65,12 @@ const Footer = () => {
     }
   };
 
+  // Mobile Bottom Navigation Click
+  const handleTabClick = (tab) => {
+    setActiveTab(tab.id);
+    navigate(tab.path); // Navigate to route
+  };
+
   return (
     <footer className="bg-black text-gray-300 pt-12 pb-20 md:pb-12 relative overflow-hidden">
       {/* Animated Golden Line Top */}
@@ -69,20 +82,21 @@ const Footer = () => {
       ></motion.div>
 
       {/* Main Navigation Bar (Fixed at bottom on mobile) */}
+      {/* Main Navigation Bar (Fixed at bottom on mobile) */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-black border-t border-gray-800 z-50">
         <div className="flex justify-around py-3">
           {[
-            { id: "home", icon: <FaHome />, label: "Home" },
-            { id: "shop", icon: <FaShoppingBag />, label: "Shop" },
-            { id: "search", icon: <FaSearch />, label: "Search" },
-            { id: "wishlist", icon: <FaHeart />, label: "Wishlist" },
-            { id: "account", icon: <FaUser />, label: "Account" }
+            { id: "home", icon: <FaHome />, label: "Home", path: "/" },
+            { id: "shop", icon: <FaShoppingBag />, label: "Shop", path: "/products" },
+            { id: "search", icon: <FaSearch />, label: "Search", path: "/search" },
+            { id: "wishlist", icon: <FaHeart />, label: "Wishlist", path: "/cart" },
+            { id: "account", icon: <FaUser />, label: "Account", path: "/login" },
           ].map((item) => (
             <motion.button
               key={item.id}
               whileTap={{ scale: 0.9 }}
               className={`flex flex-col items-center px-2 ${activeTab === item.id ? "text-yellow-500" : "text-gray-400"}`}
-              onClick={() => setActiveTab(item.id)}
+              onClick={() => handleTabClick(item)}
             >
               {item.icon}
               <span className="text-xs mt-1">{item.label}</span>

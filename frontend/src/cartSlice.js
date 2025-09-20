@@ -15,32 +15,41 @@ const cartSlice = createSlice({
   initialState,
   reducers: {
     addToCart: (state, action) => {
-      const { product, quantity, size, color } = action.payload;
+      const { product, quantity, size, color, customMeasurements, sizeType } = action.payload;
 
       const existingItem = state.items.find(
         (item) =>
           item.product._id === product._id &&
           item.size === size &&
-          item.color === color
+          item.color === color &&
+          JSON.stringify(item.customMeasurements) === JSON.stringify(customMeasurements)
       );
 
       if (existingItem) {
         existingItem.quantity += quantity;
       } else {
-        state.items.push({ product, quantity, size, color });
+        state.items.push({ 
+          product, 
+          quantity, 
+          size, 
+          color, 
+          customMeasurements, 
+          sizeType 
+        });
       }
 
-      saveToLocalStorage(state.items); // Save after every update
+      saveToLocalStorage(state.items);
     },
 
     removeFromCart: (state, action) => {
-      const { productId, size, color } = action.payload;
+      const { productId, size, color, customMeasurements } = action.payload;
       state.items = state.items.filter(
         (item) =>
           !(
             item.product._id === productId &&
             item.size === size &&
-            item.color === color
+            item.color === color &&
+            JSON.stringify(item.customMeasurements) === JSON.stringify(customMeasurements)
           )
       );
 
@@ -48,12 +57,13 @@ const cartSlice = createSlice({
     },
 
     updateQuantity: (state, action) => {
-      const { productId, size, color, quantity } = action.payload;
+      const { productId, size, color, customMeasurements, quantity } = action.payload;
       const item = state.items.find(
         (i) =>
           i.product._id === productId &&
           i.size === size &&
-          i.color === color
+          i.color === color &&
+          JSON.stringify(i.customMeasurements) === JSON.stringify(customMeasurements)
       );
       if (item) item.quantity = quantity;
 
