@@ -80,6 +80,7 @@ const Navbar = () => {
   // Navigation items - Home is static, others come from backend
   const navItems = [
     { name: "Home", path: "/" },
+    { name: "About", path: "/about" },
     { name: "Dresses", path: "/products" },
     ...categories.map(cat => ({
       name: cat.name,
@@ -103,13 +104,15 @@ const Navbar = () => {
         transition={{ type: "spring", damping: 15, stiffness: 100 }}
       >
         <div className="max-w-7xl mx-auto flex justify-between items-center py-4 px-6 uppercase tracking-wide">
-          <motion.h1
-            className={`text-2xl font-bold cursor-pointer ${textColor()}`}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Link to="/">Nam's Ropa</Link>
-          </motion.h1>
+          <motion.div
+  className="cursor-pointer"
+  whileHover={{ scale: 1.05 }}
+  whileTap={{ scale: 0.95 }}
+>
+  <Link to="/">
+    <img src="Logo.png"alt="Nam's Ropa Logo" className="h-10 bg-white w-auto" />
+  </Link>
+</motion.div>
 
           {/* Desktop Menu */}
           {!loading && !error && (

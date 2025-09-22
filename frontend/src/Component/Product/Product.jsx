@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { backendUrl } from "../../config/config";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
 
 const Product = () => {
   const [dresses, setDresses] = useState([]);
@@ -107,9 +107,9 @@ const Product = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.6 }}
           >
-            <button className="bg-yellow-600 text-black hover:bg-yellow-500 font-serif font-semibold py-3 px-8 rounded-full transition-all duration-300 transform hover:-translate-y-1 shadow-lg">
+            <Link to="/about" className="bg-yellow-600 text-black hover:bg-yellow-500 font-serif font-semibold py-3 px-8 rounded-full transition-all duration-300 transform hover:-translate-y-1 shadow-lg">
               Shop Collection
-            </button>
+            </Link>
           </motion.div>
         </motion.div>
         

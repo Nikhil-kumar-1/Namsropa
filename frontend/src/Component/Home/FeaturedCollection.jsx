@@ -6,7 +6,7 @@ const FeaturedCollection = () => {
     {
       title: "Bridal Collection 2025",
       description: "Exquisite bridal wear with intricate embroidery and timeless elegance",
-      image: "https://namsropa.in/wp-content/uploads/2025/08/Sash-Tie-Sequin-Mesh-Sheath-Dress-4.jpg",
+      image: "https://plus.unsplash.com/premium_photo-1673569505749-325bd2509260?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjV8fGJyaWRhbHxlbnwwfHwwfHx8MA%3D%3D",
       items: 24,
       link: "/collections/bridal-2025"
     },

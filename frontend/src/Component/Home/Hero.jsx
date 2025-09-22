@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from "react-router-dom";
 
 const Hero = () => {
   const [isMuted, setIsMuted] = useState(true);
@@ -155,34 +156,29 @@ const Hero = () => {
         </motion.p>
         
         <motion.div 
-          className="flex flex-col sm:flex-row gap-4"
-          variants={textVariants}
-          initial="hidden"
-          animate="visible"
-          transition={{ delay: 0.4 }}
-        >
-          <motion.button
-            variants={buttonVariants}
-            initial="hidden"
-            animate="visible"
-            whileHover="hover"
-            whileTap="tap"
-            className="bg-yellow-600 cursor-pointer text-white hover:text-black px-8 py-3 rounded-sm font-semibold text-lg tracking-wider uppercase"
-          >
-            Explore Collection
-          </motion.button>
-          
-          <motion.button
-            variants={buttonVariants}
-            initial="hidden"
-            animate="visible"
-            whileHover="hover"
-            whileTap="tap"
-            className="cursor-pointer bg-transparent border-2 border-white text-white px-8 py-3 rounded-sm font-semibold text-lg tracking-wider uppercase"
-          >
-            Shop Now
-          </motion.button>
-        </motion.div>
+  className="flex flex-col sm:flex-row gap-4"
+  variants={textVariants}
+  initial="hidden"
+  animate="visible"
+  transition={{ delay: 0.4 }}
+>
+ 
+  
+  {/* Second button with Link */}
+  <motion.div
+    variants={buttonVariants}
+    initial="hidden"
+    animate="visible"
+    whileHover="hover"
+    whileTap="tap"
+  >
+    <Link to="/products">
+      <button className="cursor-pointer bg-transparent border-2 border-white text-white px-8 py-3 rounded-sm font-semibold text-lg tracking-wider uppercase">
+        Shop Now
+      </button>
+    </Link>
+  </motion.div>
+</motion.div>
 
         {/* Scroll Indicator */}
         <motion.div 
@@ -200,25 +196,7 @@ const Hero = () => {
       </div>
 
       {/* Brand Stats - Loaded after main content */}
-      <motion.div 
-        className="absolute bottom-10 left-0 right-0 hidden md:flex justify-center space-x-12"
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.2 }}
-      >
-        <div className="text-center">
-          <div className="text-3xl font-bold text-yellow-400">200+</div>
-          <div className="text-gray-300 tracking-widest text-sm">EXCLUSIVE DESIGNS</div>
-        </div>
-        <div className="text-center">
-          <div className="text-3xl font-bold text-yellow-400">28</div>
-          <div className="text-gray-300 tracking-widest text-sm">YEARS OF LEGACY</div>
-        </div>
-        <div className="text-center">
-          <div className="text-3xl font-bold text-yellow-400">1M+</div>
-          <div className="text-gray-300 tracking-widest text-sm">SATISFIED CLIENTS</div>
-        </div>
-      </motion.div>
+     
     </div>
   );
 };

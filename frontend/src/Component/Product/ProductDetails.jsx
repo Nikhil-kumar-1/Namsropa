@@ -436,235 +436,79 @@ const ProductDetails = () => {
                 </p>
 
                 {/* Standard Size Selection */}
-                {selectedSizeType === "standard" && (
-                  <>
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-md font-semibold text-yellow-400">
-                        Select Standard Size
-                      </h3>
-                      <button
-                        className="text-sm cursor-pointer text-yellow-500 hover:text-yellow-400 transition-colors flex items-center"
-                        onClick={() => setShowSizeChart(!showSizeChart)}
-                      >
-                        Size Guide
-                        <svg
-                          className="w-4 h-4 ml-1"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                      </button>
-                    </div>
+                {/* Standard Size Selection */}
+{selectedSizeType === "standard" && (
+  <>
+    {/* Header */}
+    <div className="flex items-center justify-between mb-4">
+      <h3 className="text-md font-semibold text-yellow-400">
+        Select Standard Size
+      </h3>
+      <button
+        className="flex items-center text-sm text-yellow-500 hover:text-yellow-400 transition-colors"
+        onClick={() => setShowSizeChart(!showSizeChart)}
+      >
+        Size Guide
+        <svg
+          className="w-4 h-4 ml-1"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+      </button>
+    </div>
 
-                    <div className="space-y-2">
-                      {/* Row 1: XS, S, M */}
-                      <div className="flex flex-wrap gap-2">
-                        <span className="text-yellow-400 text-sm font-medium w-6">XS:</span>
-                        {["XS", "0", "2"].map((size) => (
-                          <motion.button
-                            key={size}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className={`py-1 px-2 text-xs rounded border min-w-[2rem] ${
-                              selectedSize === size
-                                ? "bg-yellow-500 text-black border-yellow-500 font-bold"
-                                : "bg-gray-800 text-gray-300 border-gray-700 hover:border-yellow-500/50"
-                            } transition-all duration-200`}
-                            onClick={() => setSelectedSize(size)}
-                          >
-                            {size}
-                          </motion.button>
-                        ))}
-                        
-                        <span className="text-yellow-400 text-sm font-medium w-6 ml-2">S:</span>
-                        {["S", "4", "6"].map((size) => (
-                          <motion.button
-                            key={size}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className={`py-1 px-2 text-xs rounded border min-w-[2rem] ${
-                              selectedSize === size
-                                ? "bg-yellow-500 text-black border-yellow-500 font-bold"
-                                : "bg-gray-800 text-gray-300 border-gray-700 hover:border-yellow-500/50"
-                            } transition-all duration-200`}
-                            onClick={() => setSelectedSize(size)}
-                          >
-                            {size}
-                          </motion.button>
-                        ))}
-                        
-                        <span className="text-yellow-400 text-sm font-medium w-6 ml-2">M:</span>
-                        {["M", "8", "10"].map((size) => (
-                          <motion.button
-                            key={size}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className={`py-1 px-2 text-xs rounded border min-w-[2rem] ${
-                              selectedSize === size
-                                ? "bg-yellow-500 text-black border-yellow-500 font-bold"
-                                : "bg-gray-800 text-gray-300 border-gray-700 hover:border-yellow-500/50"
-                            } transition-all duration-200`}
-                            onClick={() => setSelectedSize(size)}
-                          >
-                            {size}
-                          </motion.button>
-                        ))}
-                      </div>
+    {/* Sizes Grid */}
+    <div className="grid grid-cols-5 gap-4">
+      {[
+        { label: "XS", sizes: ["0", "2"] },
+        { label: "S", sizes: ["4", "6"] },
+        { label: "M", sizes: ["8", "10"] },
+        { label: "L", sizes: ["12", "14"] },
+        { label: "XL", sizes: ["16", "18"] },
+        { label: "1X", sizes: ["16w", "18w"] },
+        { label: "2X", sizes: ["20w", "22w"] },
+        { label: "3X", sizes: ["24w", "26w"] },
+        { label: "4X", sizes: ["28w", "30w"] },
+        { label: "5X", sizes: ["32w", "34w"] },
+        { label: "6X", sizes: ["36w"] },
+      ].map((group) => (
+       <div key={group.label} className="flex flex-col items-center gap-1">
+  {/* Label on top */}
+  <span className="text-yellow-400 text-lg font-medium">{group.label}</span>
 
-                      {/* Row 2: L, XL, 1X */}
-                      <div className="flex flex-wrap gap-2">
-                        <span className="text-yellow-400 text-sm font-medium w-6">L:</span>
-                        {["L", "12", "14"].map((size) => (
-                          <motion.button
-                            key={size}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className={`py-1 px-2 text-xs rounded border min-w-[2rem] ${
-                              selectedSize === size
-                                ? "bg-yellow-500 text-black border-yellow-500 font-bold"
-                                : "bg-gray-800 text-gray-300 border-gray-700 hover:border-yellow-500/50"
-                            } transition-all duration-200`}
-                            onClick={() => setSelectedSize(size)}
-                          >
-                            {size}
-                          </motion.button>
-                        ))}
-                        
-                        <span className="text-yellow-400 text-sm font-medium w-6 ml-2">XL:</span>
-                        {["XL", "16", "18"].map((size) => (
-                          <motion.button
-                            key={size}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className={`py-1 px-2 text-xs rounded border min-w-[2rem] ${
-                              selectedSize === size
-                                ? "bg-yellow-500 text-black border-yellow-500 font-bold"
-                                : "bg-gray-800 text-gray-300 border-gray-700 hover:border-yellow-500/50"
-                            } transition-all duration-200`}
-                            onClick={() => setSelectedSize(size)}
-                          >
-                            {size}
-                          </motion.button>
-                        ))}
-                        
-                        <span className="text-yellow-400 text-sm font-medium w-6 ml-2">1X:</span>
-                        {["1X", "16w", "18w"].map((size) => (
-                          <motion.button
-                            key={size}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className={`py-1 px-2 text-xs rounded border min-w-[2rem] ${
-                              selectedSize === size
-                                ? "bg-yellow-500 text-black border-yellow-500 font-bold"
-                                : "bg-gray-800 text-gray-300 border-gray-700 hover:border-yellow-500/50"
-                            } transition-all duration-200`}
-                            onClick={() => setSelectedSize(size)}
-                          >
-                            {size}
-                          </motion.button>
-                        ))}
-                      </div>
+  {/* Sizes in a row */}
+  <div className="flex gap-2">
+    {group.sizes.map((size) => (
+      <motion.button
+        key={size}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className={`py-1 px-3 text-xs rounded border min-w-[2.5rem] text-center transition-all duration-200 ${
+          selectedSize === size
+            ? "bg-yellow-500 text-black border-yellow-500 font-bold"
+            : "bg-gray-800 text-gray-300 border-gray-700 hover:border-yellow-500/50"
+        }`}
+        onClick={() => setSelectedSize(size)}
+      >
+        {size}
+      </motion.button>
+    ))}
+  </div>
+</div>
 
-                      {/* Row 3: 2X, 3X, 4X */}
-                      <div className="flex flex-wrap gap-2">
-                        <span className="text-yellow-400 text-sm font-medium w-6">2X:</span>
-                        {["2X", "20w", "22w"].map((size) => (
-                          <motion.button
-                            key={size}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className={`py-1 px-2 text-xs rounded border min-w-[2rem] ${
-                              selectedSize === size
-                                ? "bg-yellow-500 text-black border-yellow-500 font-bold"
-                                : "bg-gray-800 text-gray-300 border-gray-700 hover:border-yellow-500/50"
-                            } transition-all duration-200`}
-                            onClick={() => setSelectedSize(size)}
-                          >
-                            {size}
-                          </motion.button>
-                        ))}
-                        
-                        <span className="text-yellow-400 text-sm font-medium w-6 ml-2">3X:</span>
-                        {["3X", "24w", "26w"].map((size) => (
-                          <motion.button
-                            key={size}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className={`py-1 px-2 text-xs rounded border min-w-[2rem] ${
-                              selectedSize === size
-                                ? "bg-yellow-500 text-black border-yellow-500 font-bold"
-                                : "bg-gray-800 text-gray-300 border-gray-700 hover:border-yellow-500/50"
-                            } transition-all duration-200`}
-                            onClick={() => setSelectedSize(size)}
-                          >
-                            {size}
-                          </motion.button>
-                        ))}
-                        
-                        <span className="text-yellow-400 text-sm font-medium w-6 ml-2">4X:</span>
-                        {["4X", "28w", "30w"].map((size) => (
-                          <motion.button
-                            key={size}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className={`py-1 px-2 text-xs rounded border min-w-[2rem] ${
-                              selectedSize === size
-                                ? "bg-yellow-500 text-black border-yellow-500 font-bold"
-                                : "bg-gray-800 text-gray-300 border-gray-700 hover:border-yellow-500/50"
-                            } transition-all duration-200`}
-                            onClick={() => setSelectedSize(size)}
-                          >
-                            {size}
-                          </motion.button>
-                        ))}
-                      </div>
+      ))}
+    </div>
+  </>
+)}
 
-                      {/* Row 4: 5X, 6X */}
-                      <div className="flex flex-wrap gap-2">
-                        <span className="text-yellow-400 text-sm font-medium w-6">5X:</span>
-                        {["5X", "32w", "34w"].map((size) => (
-                          <motion.button
-                            key={size}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className={`py-1 px-2 text-xs rounded border min-w-[2rem] ${
-                              selectedSize === size
-                                ? "bg-yellow-500 text-black border-yellow-500 font-bold"
-                                : "bg-gray-800 text-gray-300 border-gray-700 hover:border-yellow-500/50"
-                            } transition-all duration-200`}
-                            onClick={() => setSelectedSize(size)}
-                          >
-                            {size}
-                          </motion.button>
-                        ))}
-                        
-                        <span className="text-yellow-400 text-sm font-medium w-6 ml-2">6X:</span>
-                        {["6X", "36w"].map((size) => (
-                          <motion.button
-                            key={size}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className={`py-1 px-2 text-xs rounded border min-w-[2rem] ${
-                              selectedSize === size
-                                ? "bg-yellow-500 text-black border-yellow-500 font-bold"
-                                : "bg-gray-800 text-gray-300 border-gray-700 hover:border-yellow-500/50"
-                            } transition-all duration-200`}
-                            onClick={() => setSelectedSize(size)}
-                          >
-                            {size}
-                          </motion.button>
-                        ))}
-                      </div>
-                    </div>
-                  </>
-                )}
 
                 {/* Custom Size Selection */}
                 {selectedSizeType === "custom" && (
@@ -819,7 +663,7 @@ const ProductDetails = () => {
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="bg-gray-900 rounded-xl max-w-4xl w-full p-6 border border-yellow-800 max-h-screen overflow-y-auto"
+                    className="bg-gray-900 rounded-xl max-w-6xl mt-50 w-full p-6 border border-yellow-800 max-h-screen overflow-y-auto"
                   >
                     <div className="flex justify-between items-center mb-4 border-b border-yellow-800 pb-3">
                       <h3 className="text-xl font-bold text-yellow-400">

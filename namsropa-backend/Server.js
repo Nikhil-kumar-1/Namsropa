@@ -18,6 +18,7 @@ app.use(cookieParser());
 
 // ✅ Allowed Origins (Frontend URLs only)
 const allowedOrigins = [
+  "https://namsropa.com",
   "http://localhost:5173",             // local dev
   "https://namsropa.vercel.app"        // production frontend
 ];
@@ -51,6 +52,10 @@ cloudinary.config({
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/dresses", productRoutes);
 
+// Root route for Hostinger availability check
+app.get("/", (req, res) => {
+  res.json({ status: "Backend is running" });
+});
 
 // 404 handler
 app.use((req, res) => {
