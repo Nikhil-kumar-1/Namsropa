@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 const FeaturedCollection = () => {
   const collections = [
@@ -8,14 +9,14 @@ const FeaturedCollection = () => {
       description: "Exquisite bridal wear with intricate embroidery and timeless elegance",
       image: "https://plus.unsplash.com/premium_photo-1673569505749-325bd2509260?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjV8fGJyaWRhbHxlbnwwfHwwfHx8MA%3D%3D",
       items: 24,
-      link: "/collections/bridal-2025"
+      link: "/category/bridesmaid"
     },
     {
       title: "New Arrivals",
       description: "Fresh designs that redefine contemporary luxury fashion",
       image: "https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?auto=format&fit=crop&w=1170&q=80",
       items: 18,
-      link: "/collections/new-arrivals"
+      link: "/category/all"
     },
     {
       title: "Festive Collection",
@@ -111,7 +112,7 @@ const FeaturedCollection = () => {
                     animate={hoveredCard === index ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
                     transition={{ duration: 0.4 }}
                   />
-                  <span className="text-black">EXPLORE COLLECTION</span>
+                 <Link to={collection.link}> <span className="text-black">EXPLORE COLLECTION</span></Link>
                   <motion.svg 
                     className="w-4 h-4 text-yellow-600" 
                     fill="none" 
@@ -137,8 +138,8 @@ const FeaturedCollection = () => {
           transition={{ delay: 0.5, duration: 0.7 }}
           viewport={{ once: true }}
         >
-          <motion.button 
-            className="bg-white border border-yellow-500 text-yellow-600 px-10 py-4 rounded-full font-medium text-lg tracking-wider shadow-md hover:shadow-lg transition relative overflow-hidden group"
+         <Link to="/products"><motion.button 
+            className="bg-white border cursor-pointer border-yellow-500 text-yellow-600 px-10 py-4 rounded-full font-medium text-lg tracking-wider shadow-md hover:shadow-lg transition relative overflow-hidden group"
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             onClick={() => console.log("View all collections clicked")}
@@ -156,7 +157,7 @@ const FeaturedCollection = () => {
               </svg>
             </span>
             <div className="absolute inset-0 bg-yellow-500 opacity-0 group-hover:opacity-10 transition-opacity"></div>
-          </motion.button>
+          </motion.button></Link> 
         </motion.div>
       </div>
     </section>

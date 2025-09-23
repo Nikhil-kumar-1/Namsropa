@@ -214,7 +214,7 @@ const ContactUs = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-lg text-white">Phone</h3>
-                    <p className="text-gray-300">+1 (555) 123-4567</p>
+                    <p className="text-gray-300">+1 (307) 310-2686</p>
                     <p className="text-gray-400 text-sm">Mon-Fri, 9AM-5PM</p>
                   </div>
                 </div>
@@ -240,8 +240,8 @@ const ContactUs = () => {
                     <h3 className="font-semibold text-lg text-white">
                       Store Location
                     </h3>
-                    <p className="text-gray-300">123 Fashion Avenue</p>
-                    <p className="text-gray-300">New York, NY 10001</p>
+                    <p className="text-gray-300">Namsropa</p>
+                    <p className="text-gray-300">United State</p>
                   </div>
                 </div>
 

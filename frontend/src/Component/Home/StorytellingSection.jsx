@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const StorytellingSection = () => {
   return (
@@ -60,7 +61,7 @@ const StorytellingSection = () => {
         </motion.p>
 
         {/* CTA Button */}
-        <motion.button
+       <Link to="/about"><motion.button
           className="cursor-pointer px-10 py-3 border-2 border-yellow-500 text-yellow-500 font-medium tracking-wide rounded-full hover:bg-yellow-500 hover:text-black transition duration-300"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -68,7 +69,7 @@ const StorytellingSection = () => {
           viewport={{ once: true }}
         >
           Learn More
-        </motion.button>
+        </motion.button></Link> 
       </div>
     </section>
   );

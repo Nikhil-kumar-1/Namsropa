@@ -20,6 +20,8 @@ import ScrollToTop from "./Component/ScrollToTop";
 import Cart from "./Component/Cart/Cart";
 import SizeChart from "./Component/SizeAndChart/SizeChart";
 import NotFound from "./Component/NotFound/NotFound";
+import Profile from "./Component/Profile/Profile";
+import Orders from "./Component/Order/Order";
 
 // ✅ ProtectedRoute component
 const ProtectedRoute = ({ children, role }) => {
@@ -48,33 +50,46 @@ const AppContent = () => {
       <ScrollToTop />
       {!isAdminRoute && <Navbar />}
       
-      <Routes>
-        <Route path="/" element={<HOME />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-        <Route path="/payment-shipping" element={<PaymentsShipping />} />
-        <Route path="/returns" element={<ReturnsCancellations />} />
-        <Route path="/contact" element={<ContactUs />} />   
-        <Route path="/products" element={<Product />} /> 
-        <Route path="/product/:id" element={<ProductDetails />} /> 
-        <Route path="/category/:category" element={<ProductByCategory />} />
-        <Route path="/cart" element={<Cart />} /> 
-        <Route path="/size-chart" element={<SizeChart />} />
+     <Routes>
+  <Route path="/" element={<HOME />} />
+  <Route path="/about" element={<AboutPage />} />
+  <Route path="/login" element={<Login />} />
+  <Route path="/signup" element={<Signup />} />
+  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+  <Route path="/payment-shipping" element={<PaymentsShipping />} />
+  <Route path="/returns" element={<ReturnsCancellations />} />
+  <Route path="/contact" element={<ContactUs />} />   
+  <Route path="/products" element={<Product />} /> 
+  <Route path="/profile" element={<Profile />}/>
+  <Route path="/orders" element={<Orders />}/>
+  <Route path="/product/:id" element={<ProductDetails />} /> 
+  <Route path="/category/:category" element={<ProductByCategory />} />
 
-        {/* ✅ Protected Admin Route */}
-        <Route 
-          path="/admin" 
-          element={
-            <ProtectedRoute role="admin">
-              <AdminDashboard />
-            </ProtectedRoute>
-          } 
-        />
+  {/* ✅ Protected Cart Route */}
+  <Route 
+    path="/cart" 
+    element={
+      <ProtectedRoute>
+        <Cart />
+      </ProtectedRoute>
+    } 
+  /> 
 
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+  <Route path="/size-chart" element={<SizeChart />} />
+
+  {/* ✅ Protected Admin Route */}
+  <Route 
+    path="/admin" 
+    element={
+      <ProtectedRoute role="admin">
+        <AdminDashboard />
+      </ProtectedRoute>
+    } 
+  />
+
+  <Route path="*" element={<NotFound />} />
+</Routes>
+
 
       {!isAdminRoute && <Footer />}
     </>

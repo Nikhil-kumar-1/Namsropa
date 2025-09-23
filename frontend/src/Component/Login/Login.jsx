@@ -1,7 +1,10 @@
+// src/components/Login.js
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import axios from "axios";
 import { backendUrl } from "../../config/config";
+import { loginSuccess } from "../../authSlice";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -10,6 +13,7 @@ export default function Login() {
   const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -23,28 +27,30 @@ export default function Login() {
         password,
       });
 
-     if (res.data.user) {
-  const token = res.data.token;
-  const role = res.data.user.role; // e.g., "admin" or "user"
+      if (res.data.user) {
+        const token = res.data.token;
+        const user = res.data.user;
 
-  localStorage.setItem("token", token);
-  localStorage.setItem("userRole", role); // store role as string
+        // Dispatch login success to Redux store
+        dispatch(loginSuccess({ token, user }));
 
-  // Reset form
-  setEmail("");
-  setPassword("");
+        // Store role separately if needed
+        localStorage.setItem("userRole", user.role);
 
-  // Redirect
-  setTimeout(() => {
-    if (role === "admin") {
-      navigate("/admin");
-    } else {
-      navigate("/user/home");
-    }
-  }, 500);
-}
-      if (res.data.message) {
+        // Reset form
+        setEmail("");
+        setPassword("");
+
         setSuccess("✅ Logged in successfully! Redirecting...");
+
+        // Redirect based on role
+        setTimeout(() => {
+          if (user.role === "admin") {
+            navigate("/admin");
+          } else {
+            navigate("/");
+          }
+        }, 500);
       }
     } catch (err) {
       if (err.response?.status === 404) {
@@ -112,14 +118,12 @@ export default function Login() {
             </button>
           </form>
 
-          {/* Error message */}
           {error && (
             <div className="mt-6 p-3 bg-yellow-900/30 border border-yellow-500/50 rounded-lg">
               <p className="text-yellow-300 text-center font-medium">{error}</p>
             </div>
           )}
 
-          {/* Success message */}
           {success && (
             <div className="mt-6 p-3 bg-green-900/30 border border-green-500/50 rounded-lg">
               <p className="text-green-300 text-center font-medium">{success}</p>
@@ -135,8 +139,6 @@ export default function Login() {
             </p>
           </div>
         </div>
-        
-       
       </div>
     </div>
   );

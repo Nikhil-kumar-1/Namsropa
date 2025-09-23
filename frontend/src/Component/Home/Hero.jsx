@@ -109,35 +109,20 @@ const Hero = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black/80"></div>
         
         {/* Mute Button */}
-        <button
-          onClick={() => setIsMuted(!isMuted)}
-          className="absolute bottom-4 right-4 z-10 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-all"
-          aria-label={isMuted ? "Unmute" : "Mute"}
-        >
-          {isMuted ? (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clipRule="evenodd"></path>
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path>
-            </svg>
-          ) : (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
-            </svg>
-          )}
-        </button>
+        
       </div>
 
       {/* Content - Optimized for LCP */}
       <div className="relative z-10 flex flex-col justify-center items-center h-full text-center px-4 sm:px-6 lg:px-8">
         {/* Preload critical text with priority */}
         <motion.h1 
-          className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4 font-serif"
+          className="text-4xl sm:text-5xl md:text-5xl font-bold text-white mb-4 font-serif"
           variants={textVariants}
           initial="hidden"
           animate="visible"
           style={{ willChange: 'transform, opacity' }} // Hint to browser for optimization
         >
-          Timeless <span className="text-yellow-400">Elegance</span>
+          Whatever Your Size,  <span className="text-yellow-400">Height, Preferred Style</span>
         </motion.h1>
         
         {/* LCP Element - Optimized with priority rendering */}
@@ -174,7 +159,7 @@ const Hero = () => {
   >
     <Link to="/products">
       <button className="cursor-pointer bg-transparent border-2 border-white text-white px-8 py-3 rounded-sm font-semibold text-lg tracking-wider uppercase">
-        Shop Now
+        Customization
       </button>
     </Link>
   </motion.div>

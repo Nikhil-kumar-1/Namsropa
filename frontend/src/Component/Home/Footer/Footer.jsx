@@ -108,22 +108,23 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-5">
         {/* Brand Section */}
         <div className="mb-10 text-center">
-          <motion.h1
+          <motion.h3
             className="text-3xl font-serif font-bold text-yellow-500 mb-4"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
           >
-            Nam's Ropa
-          </motion.h1>
+            Nam's Ropa Customized Clothing.
+            
+          </motion.h3>
           <motion.p 
             className="text-gray-400 text-sm mb-6 max-w-md mx-auto"
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
           >
-            Crafted with heritage, designed for the modern world. Discover our
-            collections inspired by timeless elegance.
+            
+            <p>To your size, your height, your style, your fabric.</p>
           </motion.p>
 
           {/* Social Icons */}
@@ -428,6 +429,7 @@ const Footer = () => {
               </form>
             </div>
           </motion.div>
+          
         </div>
 
         {/* Bottom Bar */}

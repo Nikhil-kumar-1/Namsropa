@@ -466,46 +466,52 @@ const ProductDetails = () => {
     </div>
 
     {/* Sizes Grid */}
-    <div className="grid grid-cols-5 gap-4">
-      {[
-        { label: "XS", sizes: ["0", "2"] },
-        { label: "S", sizes: ["4", "6"] },
-        { label: "M", sizes: ["8", "10"] },
-        { label: "L", sizes: ["12", "14"] },
-        { label: "XL", sizes: ["16", "18"] },
-        { label: "1X", sizes: ["16w", "18w"] },
-        { label: "2X", sizes: ["20w", "22w"] },
-        { label: "3X", sizes: ["24w", "26w"] },
-        { label: "4X", sizes: ["28w", "30w"] },
-        { label: "5X", sizes: ["32w", "34w"] },
-        { label: "6X", sizes: ["36w"] },
-      ].map((group) => (
-       <div key={group.label} className="flex flex-col items-center gap-1">
-  {/* Label on top */}
-  <span className="text-yellow-400 text-lg font-medium">{group.label}</span>
+    {/* Sizes Grid */}
+<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+  {[
+    { label: "XS", sizes: ["0", "2"] },
+    { label: "S", sizes: ["4", "6"] },
+    { label: "M", sizes: ["8", "10"] },
+    { label: "L", sizes: ["12", "14"] },
+    { label: "XL", sizes: ["16", "18"] },
+    { label: "1X", sizes: ["16w", "18w"] },
+    { label: "2X", sizes: ["20w", "22w"] },
+    { label: "3X", sizes: ["24w", "26w"] },
+    { label: "4X", sizes: ["28w", "30w"] },
+    { label: "5X", sizes: ["32w", "34w"] },
+    { label: "6X", sizes: ["36w"] },
+  ].map((group) => (
+    <div
+      key={group.label}
+      className="flex flex-col items-center gap-1 p-2 rounded-lg bg-gray-900/40"
+    >
+      {/* Label */}
+      <span className="text-yellow-400 text-sm sm:text-base font-medium">
+        {group.label}
+      </span>
 
-  {/* Sizes in a row */}
-  <div className="flex gap-2">
-    {group.sizes.map((size) => (
-      <motion.button
-        key={size}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        className={`py-1 px-3 text-xs rounded border min-w-[2.5rem] text-center transition-all duration-200 ${
-          selectedSize === size
-            ? "bg-yellow-500 text-black border-yellow-500 font-bold"
-            : "bg-gray-800 text-gray-300 border-gray-700 hover:border-yellow-500/50"
-        }`}
-        onClick={() => setSelectedSize(size)}
-      >
-        {size}
-      </motion.button>
-    ))}
-  </div>
+      {/* Sizes in a single row */}
+      <div className="flex gap-1 justify-center">
+        {group.sizes.map((size) => (
+          <motion.button
+            key={size}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className={`py-1 px-3 text-xs sm:text-sm rounded border min-w-[2.1rem] text-center transition-all duration-200 ${
+              selectedSize === size
+                ? "bg-yellow-500 text-black border-yellow-500 font-bold"
+                : "bg-gray-800 text-gray-300 border-gray-700 hover:border-yellow-500/50"
+            }`}
+            onClick={() => setSelectedSize(size)}
+          >
+            {size}
+          </motion.button>
+        ))}
+      </div>
+    </div>
+  ))}
 </div>
 
-      ))}
-    </div>
   </>
 )}
      {/* Custom Size Selection */}

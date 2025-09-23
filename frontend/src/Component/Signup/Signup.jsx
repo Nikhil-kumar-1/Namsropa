@@ -1,7 +1,10 @@
+// src/components/Signup.js
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import axios from "axios";
 import { backendUrl } from "../../config/config";
+import { signupSuccess } from "../../authSlice";
 
 export default function Signup() {
   const [formData, setFormData] = useState({
@@ -14,6 +17,7 @@ export default function Signup() {
   const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData({
@@ -43,8 +47,13 @@ export default function Signup() {
         confirmPassword: formData.confirmPassword
       });
 
-      if (res.data.token) {
-        localStorage.setItem("token", res.data.token);
+      if (res.data.token && res.data.user) {
+        // Dispatch signup success action to Redux store
+        dispatch(signupSuccess({
+          token: res.data.token,
+          user: res.data.user
+        }));
+
         setFormData({
           name: "",
           email: "",
@@ -55,9 +64,13 @@ export default function Signup() {
         // Set success message
         setSuccess("✅ Account created successfully! Redirecting...");
         
-        // Redirect after a short delay
+        // Redirect based on user role
         setTimeout(() => {
-          navigate("/adminDashboard");
+          if (res.data.user.role === 'admin') {
+            navigate("/adminDashboard");
+          } else {
+            navigate("/");
+          }
         }, 1500);
       }
     } catch (err) {
