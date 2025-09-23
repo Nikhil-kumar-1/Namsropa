@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 
-export default function AllProducts({ onEdit, reloadKey = 0, backendUrl = "http://localhost:5000" }) {
+export default function AllProducts({ onEdit, reloadKey = 0, backendUrl = `${backendUrl}` }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

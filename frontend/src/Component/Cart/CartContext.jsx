@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
+import { backendUrl } from "../../config/config";
 
 export const CartContext = createContext();
 
@@ -9,14 +10,14 @@ export const CartProvider = ({ children }) => {
 
   useEffect(() => {
     if (userId) {
-      axios.get(`http://localhost:5000/api/cart/${userId}`).then((res) => {
+      axios.get(`${backendUrl}/api/cart/${userId}`).then((res) => {
         setCart(res.data);
       });
     }
   }, [userId]);
 
   const addToCart = async (product, quantity, size, color) => {
-    const res = await axios.post("http://localhost:5000/api/cart/add", {
+    const res = await axios.post(`${backendUrl}/api/cart/add`, {
       userId,
       productId: product._id,
       quantity,
@@ -27,7 +28,7 @@ export const CartProvider = ({ children }) => {
   };
 
   const updateQuantity = async (productId, size, color, quantity) => {
-    const res = await axios.put("http://localhost:5000/api/cart/update", {
+    const res = await axios.put(`${backendUrl}/api/cart/update`, {
       userId,
       productId,
       size,
@@ -38,7 +39,7 @@ export const CartProvider = ({ children }) => {
   };
 
   const removeFromCart = async (productId, size, color) => {
-    const res = await axios.delete("http://localhost:5000/api/cart/remove", {
+    const res = await axios.delete(`${backendUrl}/api/cart/remove`, {
       data: { userId, productId, size, color },
     });
     setCart(res.data);

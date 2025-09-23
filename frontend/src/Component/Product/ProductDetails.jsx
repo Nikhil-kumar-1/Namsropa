@@ -508,9 +508,7 @@ const ProductDetails = () => {
     </div>
   </>
 )}
-
-
-                {/* Custom Size Selection */}
+     {/* Custom Size Selection */}
                 {selectedSizeType === "custom" && (
                   <div className="space-y-4">
                     <p className="text-yellow-400 text-sm">
@@ -663,7 +661,7 @@ const ProductDetails = () => {
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="bg-gray-900 rounded-xl max-w-6xl mt-50 w-full p-6 border border-yellow-800 max-h-screen overflow-y-auto"
+                    className="bg-gray-900 rounded-xl max-w-6xl h-100 w-full p-6 border border-yellow-800 max-h-screen overflow-y-auto"
                   >
                     <div className="flex justify-between items-center mb-4 border-b border-yellow-800 pb-3">
                       <h3 className="text-xl font-bold text-yellow-400">

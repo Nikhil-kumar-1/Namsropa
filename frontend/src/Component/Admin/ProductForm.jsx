@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiUpload, FiTrash2, FiImage, FiCheckCircle } from "react-icons/fi";
+import { backendUrl } from "../../config/config";
 
 const ProductUploadForm = () => {
   const [formData, setFormData] = useState({
@@ -143,7 +144,7 @@ const ProductUploadForm = () => {
     console.log("Payload to be sent:", payload);
 
     // ✅ Yaha backend ko call karo
-    const res = await axios.post("http://localhost:5000/api/dresses", payload);
+    const res = await axios.post(`${backendUrl}/api/dresses`, payload);
 
     setMessage({ text: "✅ Product uploaded successfully!", type: "success" });
 
