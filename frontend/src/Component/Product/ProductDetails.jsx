@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { addToCart } from "../../cartSlice";
 
 const ProductDetails = () => {
   const location = useLocation();
@@ -16,6 +14,7 @@ const ProductDetails = () => {
   const [quantity, setQuantity] = useState(1);
   const [scrollY, setScrollY] = useState(0);
   const [openSection, setOpenSection] = useState(null);
+  const [loading, setLoading] = useState(false);
   
   // Custom measurements state
   const [customMeasurements, setCustomMeasurements] = useState({
@@ -35,30 +34,70 @@ const ProductDetails = () => {
     setOpenSection(openSection === section ? null : section);
   };
 
-  const dispatch = useDispatch();
+  // Add to cart function - Direct API call
+  const handleAddToCart = async () => {
+  // ✅ Validation
+  if (selectedSizeType === "standard" && !selectedSize && product.sizes?.length > 0) {
+    return alert("Please select a size");
+  }
+  if (selectedSizeType === "custom" && Object.values(customMeasurements).some(m => m === "")) {
+    return alert("Please fill all required custom measurements");
+  }
+  if (!selectedColor && product.colors?.length > 0) {
+    return alert("Please select a color");
+  }
 
-  const handleAddToCart = () => {
-    if (selectedSizeType === "standard" && !selectedSize && product.sizes?.length > 0) {
-      return alert("Select size");
+  setLoading(true);
+
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please login to add items to cart");
+      navigate("/login");
+      return;
     }
-    if (selectedSizeType === "custom" && Object.values(customMeasurements).some(m => m === "")) {
-      return alert("Please fill all custom measurements");
+
+    const cartData = {
+      productId: product._id,
+      quantity,
+      size: selectedSizeType === "standard" ? selectedSize : "Custom",
+      color: selectedColor,
+      sizeType: selectedSizeType,
+      customMeasurements: selectedSizeType === "custom" ? customMeasurements : null,
+    };
+
+    const response = await fetch("http://localhost:5000/api/cart/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(cartData),
+    });
+
+    const result = await response.json();
+
+    if (response.ok && result.success !== false) {
+      alert("✅ Item added to cart successfully!");
+      // Reset form
+      setQuantity(1);
+      setSelectedSize("");
+      setSelectedColor("");
+      setCustomMeasurements({
+        shoulder: "", chest: "", bust: "", underBust: "", waist: "", hip: "",
+        upperArm: "", hpsToBust: "", hpsToWaist: "", hpsToKnee: ""
+      });
+    } else {
+      alert(`❌ Error: ${result.message || "Unable to add item"}`);
     }
-    if (!selectedColor && product.colors?.length > 0) return alert("Select color");
+  } catch (error) {
+    console.error("Error adding to cart:", error);
+    alert("⚠️ Error adding item to cart. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
 
-    dispatch(
-      addToCart({
-        product,
-        quantity,
-        size: selectedSizeType === "standard" ? selectedSize : "Custom",
-        customMeasurements: selectedSizeType === "custom" ? customMeasurements : null,
-        sizeType: selectedSizeType,
-        color: selectedColor,
-      })
-    );
-
-    alert("Added to cart!");
-  };
 
   // Handle scroll for parallax effect
   useEffect(() => {
@@ -111,16 +150,15 @@ const ProductDetails = () => {
   };
 
   // Calculate discounted price
-  const discountedPrice =
-    product.price - product.price * (product.discount / 100);
+  const discountedPrice = product.price - (product.price * (product.discount / 100));
 
   // Generate measurement options
   const generateMeasurementOptions = (start, end) => {
     const options = [];
     for (let i = start; i <= end; i++) {
       options.push(
-        <option key={i} value={`${i}"`}>
-          {i}"
+        <option key={i} value={`${i}`}>
+          {i}
         </option>
       );
     }
@@ -135,17 +173,22 @@ const ProductDetails = () => {
     });
   };
 
+  // Get main image URL
+  const getMainImage = () => {
+    console.log(product);
+    if (product.images?.[selectedImage]?.url) return product.images[selectedImage].url;
+    if (product.image?.url) return product.image.url;
+    if (product.images?.[0]?.url) return product.images[0].url;
+    return "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1";
+  };
+
   return (
     <div className="min-h-screen bg-black">
       {/* Parallax Header Section */}
       <div
         className="relative h-96 overflow-hidden"
         style={{
-          backgroundImage: `url('${
-            product.images?.[0]?.url ||
-            product.image?.url ||
-            "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1"
-          }')`,
+          backgroundImage: `url(${getMainImage()})`,
           backgroundAttachment: "fixed",
           backgroundPosition: "center",
           backgroundSize: "cover",
@@ -162,18 +205,8 @@ const ProductDetails = () => {
           onClick={() => navigate(-1)}
           className="absolute top-30 left-6 z-10 bg-yellow-500/10 backdrop-blur-md text-yellow-400 hover:text-yellow-300 rounded-full p-2 border border-yellow-500/30 hover:border-yellow-400/50 transition-all"
         >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M10 19l-7-7m0 0l7-7m-7 7h18"
-            />
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
         </motion.button>
       </div>
@@ -193,12 +226,8 @@ const ProductDetails = () => {
               <div className="relative overflow-hidden rounded-xl bg-gray-800 aspect-square border border-yellow-800/20 shadow-lg">
                 <motion.img
                   key={selectedImage}
-                  src={
-                    product.images?.[selectedImage]?.url ||
-                    product.image?.url ||
-                    "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1"
-                  }
-                  alt={product.title}
+                  src={getMainImage()}
+                  alt={product.title || product.name}
                   className="w-full h-full object-cover"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -219,9 +248,9 @@ const ProductDetails = () => {
               </div>
 
               {/* Thumbnail Gallery */}
-              <div className="grid grid-cols-4 gap-3">
-                {product.images &&
-                  product.images.map((image, index) => (
+              {product.images && product.images.length > 1 && (
+                <div className="grid grid-cols-4 gap-3">
+                  {product.images.map((image, index) => (
                     <motion.button
                       key={index}
                       whileHover={{ scale: 1.05 }}
@@ -240,39 +269,32 @@ const ProductDetails = () => {
                       />
                     </motion.button>
                   ))}
-              </div>
+                </div>
+              )}
             </div>
 
             {/* Right Column - Product Details */}
             <div className="py-4 font-serif">
               {/* Breadcrumb */}
               <nav className="flex mb-6 text-yellow-500/80 text-sm">
-                <button
-                  onClick={() => navigate("/products")}
-                  className="hover:text-yellow-400 transition-colors"
-                >
+                <button onClick={() => navigate("/products")} className="hover:text-yellow-400 transition-colors">
                   Home
                 </button>
                 <span className="mx-2">/</span>
-                <button
-                  onClick={() => navigate("/products")}
-                  className="hover:text-yellow-400 transition-colors"
-                >
+                <button onClick={() => navigate("/products")} className="hover:text-yellow-400 transition-colors">
                   Dresses
                 </button>
                 <span className="mx-2">/</span>
-                <span className="text-yellow-400 capitalize">
-                  {product.category}
-                </span>
+                <span className="text-yellow-400 capitalize">{product.category}</span>
               </nav>
 
               {/* Brand and Title */}
               <div className="mb-6">
                 <h2 className="text-sm uppercase tracking-widest text-yellow-500 font-medium">
-                  {product.brand}
+                  {product.brand || "Premium Brand"}
                 </h2>
                 <h1 className="text-3xl lg:text-4xl font-bold text-white mt-2">
-                  {product.title}
+                  {product.title || product.name}
                 </h1>
 
                 {/* Rating */}
@@ -294,8 +316,7 @@ const ProductDetails = () => {
                     ))}
                   </div>
                   <span className="ml-2 text-white">
-                    {product.rating?.average || 0} ({product.rating?.count || 0}{" "}
-                    reviews)
+                    {product.rating?.average || "4.5"} ({product.rating?.count || "100"} reviews)
                   </span>
                 </div>
               </div>
@@ -335,37 +356,13 @@ const ProductDetails = () => {
                 )}
               </div>
 
-              {/* Delivery & Returns */}
-              <div className="mb-6">
-                <h3
-                  className="text-lg font-semibold text-yellow-400 mb-3 border-b border-yellow-800 pb-2 cursor-pointer flex justify-between items-center"
-                  onClick={() => toggleSection("delivery")}
-                >
-                  Delivery & Returns
-                  <span>{openSection === "delivery" ? "−" : "+"}</span>
-                </h3>
-                {openSection === "delivery" && (
-                  <p className="text-gray-300 leading-relaxed">
-                    We offer complimentary express shipping.
-                    <br />
-                    <br />
-                    Free returns are available worldwide. If your item is eligible for
-                    return, you have 30 days from the date you receive your order to
-                    follow this procedure.
-                    <br />
-                    <br />
-                    See delivery and returns for more information.
-                  </p>
-                )}
-              </div>
-
               {/* Color Selection */}
               {product.colors && product.colors.length > 0 && (
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold text-yellow-400 mb-3 border-b border-yellow-800 pb-2">
                     Color
                   </h3>
-                  <div className="flex space-x-3">
+                  <div className="flex flex-wrap gap-3">
                     {product.colors.map((color) => (
                       <motion.button
                         key={color}
@@ -377,19 +374,17 @@ const ProductDetails = () => {
                             : "border-gray-700"
                         }`}
                         style={{
-                          backgroundColor: color.toLowerCase().includes("black")
-                            ? "#000"
-                            : color.toLowerCase().includes("blue")
-                            ? "#1e40af"
-                            : color.toLowerCase().includes("burgundy")
-                            ? "#800020"
-                            : color.toLowerCase().includes("red")
-                            ? "#dc2626"
-                            : color.toLowerCase().includes("white")
-                            ? "#fff"
-                            : color.toLowerCase().includes("green")
-                            ? "#059669"
-                            : "#d1d5db",
+                          backgroundColor: 
+                            color.toLowerCase().includes("black") ? "#000" :
+                            color.toLowerCase().includes("blue") ? "#1e40af" :
+                            color.toLowerCase().includes("burgundy") ? "#800020" :
+                            color.toLowerCase().includes("red") ? "#dc2626" :
+                            color.toLowerCase().includes("white") ? "#fff" :
+                            color.toLowerCase().includes("green") ? "#059669" :
+                            color.toLowerCase().includes("pink") ? "#ec4899" :
+                            color.toLowerCase().includes("purple") ? "#7c3aed" :
+                            color.toLowerCase().includes("yellow") ? "#f59e0b" :
+                            "#d1d5db",
                         }}
                         onClick={() => setSelectedColor(color)}
                         aria-label={color}
@@ -402,7 +397,7 @@ const ProductDetails = () => {
               {/* Size Type Selection */}
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-yellow-400 mb-3 border-b border-yellow-800 pb-2">
-                  Select Size
+                  Select Size Type
                 </h3>
                 <div className="grid grid-cols-2 gap-3 mb-4">
                   <motion.button
@@ -430,232 +425,93 @@ const ProductDetails = () => {
                     Custom Size
                   </motion.button>
                 </div>
-                
-                <p className="text-gray-400 text-sm mb-4">
-                  Size charts vary across brands, check eShakti's size chart.
-                </p>
 
                 {/* Standard Size Selection */}
-                {/* Standard Size Selection */}
-{selectedSizeType === "standard" && (
-  <>
-    {/* Header */}
-    <div className="flex items-center justify-between mb-4">
-      <h3 className="text-md font-semibold text-yellow-400">
-        Select Standard Size
-      </h3>
-      <button
-        className="flex items-center text-sm text-yellow-500 hover:text-yellow-400 transition-colors"
-        onClick={() => setShowSizeChart(!showSizeChart)}
-      >
-        Size Guide
-        <svg
-          className="w-4 h-4 ml-1"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-      </button>
-    </div>
+                {selectedSizeType === "standard" && (
+                  <>
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-md font-semibold text-yellow-400">
+                        Select Standard Size
+                      </h3>
+                      <button
+                        className="flex items-center text-sm text-yellow-500 hover:text-yellow-400 transition-colors"
+                        onClick={() => setShowSizeChart(!showSizeChart)}
+                      >
+                        Size Guide
+                        <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </button>
+                    </div>
 
-    {/* Sizes Grid */}
-    {/* Sizes Grid */}
-<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-  {[
-    { label: "XS", sizes: ["0", "2"] },
-    { label: "S", sizes: ["4", "6"] },
-    { label: "M", sizes: ["8", "10"] },
-    { label: "L", sizes: ["12", "14"] },
-    { label: "XL", sizes: ["16", "18"] },
-    { label: "1X", sizes: ["16w", "18w"] },
-    { label: "2X", sizes: ["20w", "22w"] },
-    { label: "3X", sizes: ["24w", "26w"] },
-    { label: "4X", sizes: ["28w", "30w"] },
-    { label: "5X", sizes: ["32w", "34w"] },
-    { label: "6X", sizes: ["36w"] },
-  ].map((group) => (
-    <div
-      key={group.label}
-      className="flex flex-col items-center gap-1 p-2 rounded-lg bg-gray-900/40"
-    >
-      {/* Label */}
-      <span className="text-yellow-400 text-sm sm:text-base font-medium">
-        {group.label}
-      </span>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+                      {[
+                        { label: "XS", sizes: ["0", "2"] },
+                        { label: "S", sizes: ["4", "6"] },
+                        { label: "M", sizes: ["8", "10"] },
+                        { label: "L", sizes: ["12", "14"] },
+                        { label: "XL", sizes: ["16", "18"] },
+                        { label: "1X", sizes: ["16w", "18w"] },
+                        { label: "2X", sizes: ["20w", "22w"] },
+                        { label: "3X", sizes: ["24w", "26w"] },
+                        { label: "4X", sizes: ["28w", "30w"] },
+                        { label: "5X", sizes: ["32w", "34w"] },
+                        { label: "6X", sizes: ["36w"] },
+                      ].map((group) => (
+                        <div key={group.label} className="flex flex-col items-center gap-1 p-2 rounded-lg bg-gray-900/40">
+                          <span className="text-yellow-400 text-sm sm:text-base font-medium">{group.label}</span>
+                          <div className="flex gap-1 justify-center">
+                            {group.sizes.map((size) => (
+                              <motion.button
+                                key={size}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                className={`py-1 px-3 text-xs sm:text-sm rounded border min-w-[2.1rem] text-center transition-all duration-200 ${
+                                  selectedSize === size
+                                    ? "bg-yellow-500 text-black border-yellow-500 font-bold"
+                                    : "bg-gray-800 text-gray-300 border-gray-700 hover:border-yellow-500/50"
+                                }`}
+                                onClick={() => setSelectedSize(size)}
+                              >
+                                {size}
+                              </motion.button>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
 
-      {/* Sizes in a single row */}
-      <div className="flex gap-1 justify-center">
-        {group.sizes.map((size) => (
-          <motion.button
-            key={size}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className={`py-1 px-3 text-xs sm:text-sm rounded border min-w-[2.1rem] text-center transition-all duration-200 ${
-              selectedSize === size
-                ? "bg-yellow-500 text-black border-yellow-500 font-bold"
-                : "bg-gray-800 text-gray-300 border-gray-700 hover:border-yellow-500/50"
-            }`}
-            onClick={() => setSelectedSize(size)}
-          >
-            {size}
-          </motion.button>
-        ))}
-      </div>
-    </div>
-  ))}
-</div>
-
-  </>
-)}
-     {/* Custom Size Selection */}
+                {/* Custom Size Selection */}
                 {selectedSizeType === "custom" && (
                   <div className="space-y-4">
                     <p className="text-yellow-400 text-sm">
                       Please provide your measurements for a custom fit:
                     </p>
                     
-                    {/* Required Measurements */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-sm text-yellow-400 mb-1">Shoulder</label>
-                        <select 
-                          className="w-full bg-gray-800 border border-yellow-800 rounded-lg px-3 py-2 text-white"
-                          value={customMeasurements.shoulder}
-                          onChange={(e) => handleMeasurementChange("shoulder", e.target.value)}
-                        >
-                          <option value="">select</option>
-                          {generateMeasurementOptions(11, 25)}
-                        </select>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm text-yellow-400 mb-1">Chest</label>
-                        <select 
-                          className="w-full bg-gray-800 border border-yellow-800 rounded-lg px-3 py-2 text-white"
-                          value={customMeasurements.chest}
-                          onChange={(e) => handleMeasurementChange("chest", e.target.value)}
-                        >
-                          <option value="">select</option>
-                          {generateMeasurementOptions(20, 100)}
-                        </select>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm text-yellow-400 mb-1">Bust</label>
-                        <select 
-                          className="w-full bg-gray-800 border border-yellow-800 rounded-lg px-3 py-2 text-white"
-                          value={customMeasurements.bust}
-                          onChange={(e) => handleMeasurementChange("bust", e.target.value)}
-                        >
-                          <option value="">select</option>
-                          {generateMeasurementOptions(20, 100)}
-                        </select>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm text-yellow-400 mb-1">Under Bust</label>
-                        <select 
-                          className="w-full bg-gray-800 border border-yellow-800 rounded-lg px-3 py-2 text-white"
-                          value={customMeasurements.underBust}
-                          onChange={(e) => handleMeasurementChange("underBust", e.target.value)}
-                        >
-                          <option value="">select</option>
-                          {generateMeasurementOptions(20, 100)}
-                        </select>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm text-yellow-400 mb-1">Waist</label>
-                        <select 
-                          className="w-full bg-gray-800 border border-yellow-800 rounded-lg px-3 py-2 text-white"
-                          value={customMeasurements.waist}
-                          onChange={(e) => handleMeasurementChange("waist", e.target.value)}
-                        >
-                          <option value="">select</option>
-                          {generateMeasurementOptions(20, 100)}
-                        </select>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm text-yellow-400 mb-1">Hip</label>
-                        <select 
-                          className="w-full bg-gray-800 border border-yellow-800 rounded-lg px-3 py-2 text-white"
-                          value={customMeasurements.hip}
-                          onChange={(e) => handleMeasurementChange("hip", e.target.value)}
-                        >
-                          <option value="">select</option>
-                          {generateMeasurementOptions(20, 100)}
-                        </select>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm text-yellow-400 mb-1">Upper Arm</label>
-                        <select 
-                          className="w-full bg-gray-800 border border-yellow-800 rounded-lg px-3 py-2 text-white"
-                          value={customMeasurements.upperArm}
-                          onChange={(e) => handleMeasurementChange("upperArm", e.target.value)}
-                        >
-                          <option value="">select</option>
-                          {generateMeasurementOptions(9, 100)}
-                        </select>
-                      </div>
-                    </div>
-                    
-                    {/* Optional Measurements */}
-                    <div className="mt-6">
-                      <h4 className="text-md font-semibold text-yellow-400 mb-3">
-                        Optional Measurements
-                      </h4>
-                      <p className="text-gray-400 text-sm mb-3">
-                        The measurements below are optional. If you have a long torso or long legs, 
-                        please consider providing them to help us achieve a great fit. For best results, 
-                        please ask someone to help measure you.
-                      </p>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-sm text-yellow-400 mb-1">HPS to Bust Point</label>
+                      {[
+                        { key: "shoulder", label: "Shoulder", start: 11, end: 25 },
+                        { key: "chest", label: "Chest", start: 20, end: 100 },
+                        { key: "bust", label: "Bust", start: 20, end: 100 },
+                        { key: "underBust", label: "Under Bust", start: 20, end: 100 },
+                        { key: "waist", label: "Waist", start: 20, end: 100 },
+                        { key: "hip", label: "Hip", start: 20, end: 100 },
+                        { key: "upperArm", label: "Upper Arm", start: 9, end: 100 },
+                      ].map(({ key, label, start, end }) => (
+                        <div key={key}>
+                          <label className="block text-sm text-yellow-400 mb-1">{label}</label>
                           <select 
                             className="w-full bg-gray-800 border border-yellow-800 rounded-lg px-3 py-2 text-white"
-                            value={customMeasurements.hpsToBust}
-                            onChange={(e) => handleMeasurementChange("hpsToBust", e.target.value)}
+                            value={customMeasurements[key]}
+                            onChange={(e) => handleMeasurementChange(key, e.target.value)}
                           >
-                            <option value="">select</option>
-                            {generateMeasurementOptions(5, 100)}
+                            <option value="">Select measurement</option>
+                            {generateMeasurementOptions(start, end)}
                           </select>
                         </div>
-                        
-                        <div>
-                          <label className="block text-sm text-yellow-400 mb-1">HPS to Waist</label>
-                          <select 
-                            className="w-full bg-gray-800 border border-yellow-800 rounded-lg px-3 py-2 text-white"
-                            value={customMeasurements.hpsToWaist}
-                            onChange={(e) => handleMeasurementChange("hpsToWaist", e.target.value)}
-                          >
-                            <option value="">select</option>
-                            {generateMeasurementOptions(5, 100)}
-                          </select>
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm text-yellow-400 mb-1">HPS to Knee</label>
-                          <select 
-                            className="w-full bg-gray-800 border border-yellow-800 rounded-lg px-3 py-2 text-white"
-                            value={customMeasurements.hpsToKnee}
-                            onChange={(e) => handleMeasurementChange("hpsToKnee", e.target.value)}
-                          >
-                            <option value="">select</option>
-                            {generateMeasurementOptions(5, 100)}
-                          </select>
-                        </div>
-                      </div>
+                      ))}
                     </div>
                   </div>
                 )}
@@ -667,28 +523,13 @@ const ProductDetails = () => {
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="bg-gray-900 rounded-xl max-w-6xl h-100 w-full p-6 border border-yellow-800 max-h-screen overflow-y-auto"
+                    className="bg-gray-900 rounded-xl max-w-6xl w-full p-6 border border-yellow-800 max-h-screen overflow-y-auto"
                   >
                     <div className="flex justify-between items-center mb-4 border-b border-yellow-800 pb-3">
-                      <h3 className="text-xl font-bold text-yellow-400">
-                        Size Guide
-                      </h3>
-                      <button
-                        onClick={() => setShowSizeChart(false)}
-                        className="text-gray-400 hover:text-yellow-400 transition-colors"
-                      >
-                        <svg
-                          className="w-6 h-6"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M6 18L18 6M6 6l12 12"
-                          ></path>
+                      <h3 className="text-xl font-bold text-yellow-400">Size Guide</h3>
+                      <button onClick={() => setShowSizeChart(false)} className="text-gray-400 hover:text-yellow-400 transition-colors">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                       </button>
                     </div>
@@ -697,62 +538,27 @@ const ProductDetails = () => {
                       <table className="min-w-full bg-gray-800 rounded-lg overflow-hidden">
                         <thead>
                           <tr className="bg-yellow-900/30">
-                            <th className="py-3 px-4 text-left text-yellow-400 font-semibold">
-                              Size
-                            </th>
+                            <th className="py-3 px-4 text-left text-yellow-400 font-semibold">Size</th>
                             {sizeChart.measurements.map((measure, idx) => (
-                              <th
-                                key={idx}
-                                className="py-3 px-4 text-center text-yellow-400 font-semibold"
-                              >
+                              <th key={idx} className="py-3 px-4 text-center text-yellow-400 font-semibold">
                                 {measure}
                               </th>
                             ))}
                           </tr>
                         </thead>
                         <tbody>
-                          {Object.entries(sizeChart.sizes).map(
-                            ([size, measurements]) => (
-                              <tr
-                                key={size}
-                                className="border-b border-yellow-800/20 even:bg-gray-800/50"
-                              >
-                                <td className="py-3 px-4 text-center font-medium text-white">
-                                  {size}
+                          {Object.entries(sizeChart.sizes).map(([size, measurements]) => (
+                            <tr key={size} className="border-b border-yellow-800/20 even:bg-gray-800/50">
+                              <td className="py-3 px-4 text-center font-medium text-white">{size}</td>
+                              {measurements.map((value, idx) => (
+                                <td key={idx} className="py-3 px-4 text-center text-gray-300">
+                                  {value}"
                                 </td>
-                                {measurements.map((value, idx) => (
-                                  <td
-                                    key={idx}
-                                    className="py-3 px-4 text-center text-gray-300"
-                                  >
-                                    {value}"
-                                  </td>
-                                ))}
-                              </tr>
-                            )
-                          )}
+                              ))}
+                            </tr>
+                          ))}
                         </tbody>
                       </table>
-                    </div>
-
-                    <div className="mt-6 text-sm text-gray-400">
-                      <p className="text-yellow-400 mb-2">
-                        How to measure:
-                      </p>
-                      <ul className="list-disc pl-5 space-y-1">
-                        <li>
-                          <strong>Bust:</strong> Measure around the fullest
-                          part of your bust
-                        </li>
-                        <li>
-                          <strong>Waist:</strong> Measure around the
-                          narrowest part of your waist
-                        </li>
-                        <li>
-                          <strong>Hips:</strong> Measure around the fullest
-                          part of your hips
-                        </li>
-                      </ul>
                     </div>
                   </motion.div>
                 </div>
@@ -766,47 +572,50 @@ const ProductDetails = () => {
                 <div className="flex items-center space-x-4">
                   <div className="flex items-center border border-yellow-800 rounded-lg bg-black/50">
                     <button
-                      className="px-3 cursor-pointer py-2 text-gray-400 hover:text-yellow-400 transition-colors"
+                      className="px-3 py-2 text-gray-400 hover:text-yellow-400 transition-colors"
                       onClick={() => quantity > 1 && setQuantity(quantity - 1)}
+                      disabled={quantity <= 1}
                     >
                       -
                     </button>
                     <span className="px-4 py-2 text-white">{quantity}</span>
                     <button
-                      className="cursor-pointer px-3 py-2 text-gray-400 hover:text-yellow-400 transition-colors"
+                      className="px-3 py-2 text-gray-400 hover:text-yellow-400 transition-colors"
                       onClick={() => setQuantity(quantity + 1)}
                     >
                       +
                     </button>
                   </div>
 
-                  <div className="flex-1 ">
-                   <motion.button
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      className="w-full cursor-pointer bg-yellow-500 text-black py-3 px-6 rounded-lg font-semibold hover:bg-yellow-400 transition-colors flex items-center justify-center shadow-lg"
-      disabled={
-        (selectedSizeType === "standard" && !selectedSize && product.sizes?.length > 0) ||
-        (selectedSizeType === "custom" && Object.values(customMeasurements).some(m => m === "")) ||
-        (!selectedColor && product.colors?.length > 0)
-      }
-      onClick={handleAddToCart}
-    >
-      <svg
-        className="w-5 h-5 mr-2"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-        ></path>
-      </svg>
-      Add to Cart
-    </motion.button>
+                  <div className="flex-1">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="w-full bg-yellow-500 text-black py-3 px-6 rounded-lg font-semibold hover:bg-yellow-400 transition-colors flex items-center justify-center shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={loading || 
+                        (selectedSizeType === "standard" && !selectedSize && product.sizes?.length > 0) ||
+                        (selectedSizeType === "custom" && Object.values(customMeasurements).some(m => m === "")) ||
+                        (!selectedColor && product.colors?.length > 0)
+                      }
+                      onClick={handleAddToCart}
+                    >
+                      {loading ? (
+                        <>
+                          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Adding...
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                          </svg>
+                          Add to Cart
+                        </>
+                      )}
+                    </motion.button>
                   </div>
                 </div>
               </div>
@@ -816,43 +625,18 @@ const ProductDetails = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="text-yellow-500/80">Category:</span>
-                    <span className="ml-2 font-medium text-white capitalize">
-                      {product.category}
-                    </span>
+                    <span className="ml-2 font-medium text-white capitalize">{product.category}</span>
                   </div>
                   <div>
                     <span className="text-yellow-500/80">SKU:</span>
-                    <span className="ml-2 font-medium text-white">
-                      DRS-{product._id}
-                    </span>
+                    <span className="ml-2 font-medium text-white">DRS-{product._id?.slice(-8)}</span>
                   </div>
                   <div>
                     <span className="text-yellow-500/80">Availability:</span>
-                    <span
-                      className={`ml-2 font-medium ${
-                        product.inStock ? "text-green-400" : "text-red-400"
-                      }`}
-                    >
-                      {product.inStock
-                        ? `In Stock (${product.stockQuantity})`
-                        : "Out of Stock"}
+                    <span className={`ml-2 font-medium ${product.stock > 0 ? "text-green-400" : "text-red-400"}`}>
+                      {product.stock > 0 ? `In Stock (${product.stock})` : "Out of Stock"}
                     </span>
                   </div>
-                  {product.tags && product.tags.length > 0 && (
-                    <div>
-                      <span className="text-yellow-500/80">Tags:</span>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {product.tags.map((tag, index) => (
-                          <span
-                            key={index}
-                            className="bg-yellow-900/30 text-yellow-400 text-xs px-2 py-1 rounded border border-yellow-800"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
@@ -862,5 +646,4 @@ const ProductDetails = () => {
     </div>
   );
 };
-
 export default ProductDetails;

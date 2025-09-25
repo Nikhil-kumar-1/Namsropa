@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const cartItemSchema = new mongoose.Schema({
   productId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Product", // Reference to Product model
+    ref: "Product", 
     required: true,
   },
   quantity: {
@@ -17,7 +17,7 @@ const cartItemSchema = new mongoose.Schema({
     default: "standard",
   },
   size: {
-    type: String, // e.g. XS, S, M, L, XL or "Custom"
+    type: String,
   },
   customMeasurements: {
     shoulder: String,
@@ -35,10 +35,11 @@ const cartItemSchema = new mongoose.Schema({
 });
 
 const cartSchema = new mongoose.Schema({
-  userId: {
+   user: {  // 👈 changed from userId
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User", // Reference to User model
+    ref: "User",
     required: true,
+    unique: true, // one cart per user
   },
   items: [cartItemSchema],
 });
