@@ -12,13 +12,18 @@ cloudinary.config({
 // Helper: parse string or array fields
 const parseList = (val) => {
   if (!val) return [];
-  if (Array.isArray(val)) return val.map(v => String(v).trim()).filter(Boolean);
+  if (Array.isArray(val))
+    return val.map((v) => String(v).trim()).filter(Boolean);
   if (typeof val === "string") {
     try {
       const parsed = JSON.parse(val);
-      if (Array.isArray(parsed)) return parsed.map(v => String(v).trim()).filter(Boolean);
+      if (Array.isArray(parsed))
+        return parsed.map((v) => String(v).trim()).filter(Boolean);
     } catch {}
-    return val.split(",").map(s => s.trim()).filter(Boolean);
+    return val
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
   }
   return [];
 };
@@ -42,7 +47,7 @@ const getUploadSignature = (req, res) => {
       signature,
       timestamp,
       apiKey: process.env.CLOUDINARY_API_KEY,
-      cloudName: process.env.CLOUDINARY_CLOUD_NAME
+      cloudName: process.env.CLOUDINARY_CLOUD_NAME,
     });
   } catch (err) {
     console.error("Signature error:", err);
@@ -53,7 +58,16 @@ const getUploadSignature = (req, res) => {
 // GET all dresses with filters, pagination, sorting
 const getAllDresses = async (req, res) => {
   try {
-    const { page = 1, limit = 20, sort = "-createdAt", minPrice, maxPrice, category, brand, search } = req.query;
+    const {
+      page = 1,
+      limit = 20,
+      sort = "-createdAt",
+      minPrice,
+      maxPrice,
+      category,
+      brand,
+      search,
+    } = req.query;
 
     let filter = {};
     if (category && category !== "all") filter.category = category;
@@ -67,19 +81,22 @@ const getAllDresses = async (req, res) => {
       filter.$or = [
         { title: { $regex: search, $options: "i" } },
         { brand: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } }
+        { description: { $regex: search, $options: "i" } },
       ];
     }
 
     const skip = (Number(page) - 1) * Number(limit);
-    const dresses = await Dress.find(filter).sort(sort).skip(skip).limit(Number(limit));
+    const dresses = await Dress.find(filter)
+      .sort(sort)
+      .skip(skip)
+      .limit(Number(limit));
     const total = await Dress.countDocuments(filter);
 
     res.json({
       dresses,
       total,
       totalPages: Math.ceil(total / Number(limit)),
-      currentPage: Number(page)
+      currentPage: Number(page),
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -100,24 +117,38 @@ const getDressById = async (req, res) => {
 // CREATE new dress (images sent as {url, publicId} array)
 const createDress = async (req, res) => {
   try {
-    const { brand, title, description, category, price, originalPrice, sizes, colors, images } = req.body;
+    const {
+      brand,
+      title,
+      description,
+      category,
+      price,
+      originalPrice,
+      sizes,
+      colors,
+      images,
+    } = req.body;
 
-    if (!images || !images.length) return res.status(400).json({ message: "No images provided" });
+    if (!images || !images.length)
+      return res.status(400).json({ message: "No images provided" });
 
-    const imageObjects = images.map(img => ({ url: img.url, publicId: img.publicId }));
+    const imageObjects = images.map((img) => ({
+      url: img.url,
+      publicId: img.publicId,
+    }));
 
     const dress = new Dress({
-  brand,
-  title,
-  description,
-  category,
-  price: toNumber(price),
-  originalPrice: toNumber(originalPrice),
-  sizes: parseList(sizes),
-  colors: parseList(colors),
-  images: imageObjects,
-  image: imageObjects[0] // ✅ ab object save hoga { url, publicId }
-});
+      brand,
+      title,
+      description,
+      category,
+      price: toNumber(price),
+      originalPrice: toNumber(originalPrice),
+      sizes: parseList(sizes),
+      colors: parseList(colors),
+      images: imageObjects,
+      image: imageObjects[0], // ✅ ab object save hoga { url, publicId }
+    });
 
     const savedDress = await dress.save();
     res.status(201).json(savedDress);
@@ -130,7 +161,17 @@ const createDress = async (req, res) => {
 // UPDATE existing dress
 const updateDress = async (req, res) => {
   try {
-    const { brand, title, description, category, price, originalPrice, sizes, colors, images } = req.body;
+    const {
+      brand,
+      title,
+      description,
+      category,
+      price,
+      originalPrice,
+      sizes,
+      colors,
+      images,
+    } = req.body;
     const updates = {};
 
     if (brand) updates.brand = brand;
@@ -138,17 +179,20 @@ const updateDress = async (req, res) => {
     if (description) updates.description = description;
     if (category) updates.category = category;
     if (price !== undefined) updates.price = toNumber(price);
-    if (originalPrice !== undefined) updates.originalPrice = toNumber(originalPrice);
+    if (originalPrice !== undefined)
+      updates.originalPrice = toNumber(originalPrice);
     if (sizes) updates.sizes = parseList(sizes);
     if (colors) updates.colors = parseList(colors);
 
     if (images && images.length) {
-  updates.images = images; // [{url, publicId}]
-  updates.image = images[0]; // ✅ poora object save karna hai
-}
+      updates.images = images; // [{url, publicId}]
+      updates.image = images[0]; // ✅ poora object save karna hai
+    }
 
-
-    const dress = await Dress.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true });
+    const dress = await Dress.findByIdAndUpdate(req.params.id, updates, {
+      new: true,
+      runValidators: true,
+    });
     if (!dress) return res.status(404).json({ message: "Dress not found" });
 
     res.json(dress);
@@ -166,7 +210,7 @@ const deleteDress = async (req, res) => {
     }
     const dress = await Dress.findById(req.params.id);
     if (!dress) return res.status(404).json({ message: "Dress not found" });
-  
+
     await Dress.findByIdAndDelete(req.params.id);
     res.json({ message: "Dress deleted successfully" });
   } catch (err) {
@@ -174,7 +218,6 @@ const deleteDress = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-
 
 // GET featured dresses
 const getFeaturedDresses = async (req, res) => {
@@ -206,10 +249,10 @@ const getCategories = async (req, res) => {
     const categories = await Dress.distinct("category");
 
     const formatted = categories
-      .filter(cat => typeof cat === "string" && cat.trim() !== "") // null/undefined hatao
-      .map(cat => ({
+      .filter((cat) => typeof cat === "string" && cat.trim() !== "") // null/undefined hatao
+      .map((cat) => ({
         name: cat.charAt(0).toUpperCase() + cat.slice(1),
-        slug: cat.toLowerCase().replace(/\s+/g, "-")
+        slug: cat.toLowerCase().replace(/\s+/g, "-"),
       }));
 
     res.json({ categories: formatted });
@@ -218,9 +261,6 @@ const getCategories = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-
-
-
 
 // GET dresses by category
 const getDressesByCategory = async (req, res) => {
@@ -231,8 +271,8 @@ const getDressesByCategory = async (req, res) => {
     const categories = await Dress.distinct("category");
 
     // Slug match karke original category name nikaalo
-    const matchedCategory = categories.find(cat =>
-      cat && cat.toLowerCase().replace(/\s+/g, "-") === slug
+    const matchedCategory = categories.find(
+      (cat) => cat && cat.toLowerCase().replace(/\s+/g, "-") === slug
     );
 
     if (!matchedCategory) {
@@ -246,7 +286,6 @@ const getDressesByCategory = async (req, res) => {
   }
 };
 
-
 // SEARCH dresses
 const searchDresses = async (req, res) => {
   try {
@@ -255,8 +294,8 @@ const searchDresses = async (req, res) => {
       $or: [
         { title: { $regex: q, $options: "i" } },
         { brand: { $regex: q, $options: "i" } },
-        { description: { $regex: q, $options: "i" } }
-      ]
+        { description: { $regex: q, $options: "i" } },
+      ],
     });
     res.json(dresses);
   } catch (err) {
@@ -275,5 +314,5 @@ module.exports = {
   getTrendingDresses,
   getDressesByCategory,
   searchDresses,
-  getCategories
+  getCategories,
 };

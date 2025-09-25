@@ -96,10 +96,9 @@ const authState = useSelector((state) => state.auth || {});
   };
 
   const textColor = () => {
-    if (mobileMenuOpen) return "text-black";
-    if (isScrolled || hovered) return "text-black";
-    return "text-white";
-  };
+  return "text-black";
+};
+
 
   const handleLogout = () => {
     dispatch(logout());
@@ -132,9 +131,9 @@ const authState = useSelector((state) => state.auth || {});
   return (
     <>
       <motion.nav
-        className={`fixed top-0 w-full z-50 transition-all duration-400 ${navBackground()} ${textColor()}`}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
+        className={`top-0 w-full z-50 transition-all duration-400 ${navBackground()} ${textColor()}`}
+  onMouseEnter={() => setHovered(true)}
+  onMouseLeave={() => setHovered(false)}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ type: "spring", damping: 15, stiffness: 100 }}
