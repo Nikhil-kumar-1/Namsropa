@@ -260,7 +260,7 @@ const Footer = () => {
                         <FaPhone className="text-sm" />
                       </div>
                       <div>
-                        <p className="font-medium">+1 (555) 123-4567</p>
+                        <p className="font-medium">+1(307) 310-2686</p>
                         <p className="text-gray-400 text-xs">Mon-Fri, 9AM-5PM</p>
                       </div>
                     </div>
@@ -280,8 +280,8 @@ const Footer = () => {
                         <FaMapMarkerAlt className="text-sm" />
                       </div>
                       <div>
-                        <p className="font-medium">123 Fashion Avenue</p>
-                        <p className="text-gray-400 text-xs">New York, NY 10001</p>
+                        <p className="font-medium">Namsropa</p>
+                        <p className="text-gray-400 text-xs">UnitedState</p>
                       </div>
                     </div>
                   </div>
@@ -380,7 +380,7 @@ const Footer = () => {
                   <FaPhone className="text-sm" />
                 </div>
                 <div>
-                  <p className="font-medium">+1 (555) 123-4567</p>
+                  <p className="font-medium">+1 (307) 310-2686</p>
                   <p className="text-gray-400 text-xs">Mon-Fri, 9AM-5PM</p>
                 </div>
               </div>
@@ -400,8 +400,10 @@ const Footer = () => {
                   <FaMapMarkerAlt className="text-sm" />
                 </div>
                 <div>
-                  <p className="font-medium">123 Fashion Avenue</p>
-                  <p className="text-gray-400 text-xs">New York, NY 10001</p>
+                  <p className="font-medium">USA Address:</p>
+                  <p className="text-gray-400 text-xs">30 N. Gould St. Suite R
+Sheridan County
+Sheridan, WYOMING USA 82801</p>
                 </div>
               </div>
             </div>

@@ -1,57 +1,178 @@
-import React, { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { updateQuantity, removeFromCart, clearCart } from "../../cartSlice";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiShoppingBag, FiTrash2, FiPlus, FiMinus, FiArrowLeft, FiStar, FiChevronRight } from "react-icons/fi";
+import { FiShoppingBag, FiTrash2, FiPlus, FiMinus, FiArrowLeft, FiChevronRight } from "react-icons/fi";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCart, removeFromCart, updateQuantity, clearCart, selectCartItems, selectCartLoading } from "../../cartSlice";
 
 const Cart = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const cartItems = useSelector((state) => state.cart.items);
+  
+  // Get cart data from Redux store
+  const cartItems = useSelector(selectCartItems);
+  const loading = useSelector(selectCartLoading);
+  
+  const [error, setError] = useState(null);
   const [removingItem, setRemovingItem] = useState(null);
   const [expandedItem, setExpandedItem] = useState(null);
+  const [updatingQuantity, setUpdatingQuantity] = useState(null);
 
-  const handleUpdateQuantity = (productId, size, color, customMeasurements, newQuantity) => {
-    if (newQuantity < 1) return;
-    dispatch(updateQuantity({ productId, size, color, customMeasurements, quantity: newQuantity }));
-  };
-
-  const handleRemoveItem = (productId, size, color, customMeasurements) => {
-    const itemKey = `${productId}-${size}-${color}-${JSON.stringify(customMeasurements)}`;
-    setRemovingItem(itemKey);
-    setTimeout(() => {
-      dispatch(removeFromCart({ productId, size, color, customMeasurements }));
-      setRemovingItem(null);
-    }, 500);
-  };
-
-  const handleClearCart = () => {
-    if (window.confirm("Are you sure you want to clear your cart?")) {
-      dispatch(clearCart());
+  // Fetch cart data from backend and sync with Redux
+  const fetchCartData = async () => {
+    try {
+      setError(null);
+      // This will fetch from backend and update Redux store
+      await dispatch(fetchCart()).unwrap();
+    } catch (err) {
+      console.error("Error fetching cart:", err);
+      setError("Failed to load cart items");
     }
   };
 
-  const getTotal = () =>
-    cartItems.reduce((total, item) => total + item.product.price * item.quantity, 0);
+  useEffect(() => {
+    fetchCartData();
+  }, [dispatch]);
 
-  const shippingThreshold = 500;
-  const shippingCost = getTotal() >= shippingThreshold ? 0 : 50;
-  const totalAmount = getTotal() + shippingCost;
+  // Update quantity in backend and Redux
+  const handleUpdateQuantity = async (productId, size, color, customMeasurements, newQuantity) => {
+    if (newQuantity < 1) return;
 
-  // Calculate savings from discounts
-  const calculateSavings = () => {
-    return cartItems.reduce((savings, item) => {
-      if (item.product.discount > 0) {
-        const originalPrice = item.product.originalPrice || item.product.price;
-        const discountAmount = (originalPrice * item.product.discount / 100) * item.quantity;
-        return savings + discountAmount;
+    try {
+      const itemKey = `${productId}-${size}-${color}-${JSON.stringify(customMeasurements)}`;
+      setUpdatingQuantity(itemKey);
+
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Please login to update cart");
       }
-      return savings;
-    }, 0);
+
+      const response = await fetch("http://localhost:5000/api/cart/update", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          productId,
+          size,
+          color,
+          customMeasurements,
+          quantity: newQuantity,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update quantity");
+      }
+
+      // Update Redux store
+      dispatch(updateQuantity({
+        productId,
+        size,
+        color,
+        customMeasurements,
+        quantity: newQuantity
+      }));
+
+    } catch (err) {
+      console.error("Error updating quantity:", err);
+      alert("Failed to update quantity. Please try again.");
+    } finally {
+      setUpdatingQuantity(null);
+    }
   };
 
-  const savings = calculateSavings();
+  // Remove item from backend and Redux
+  const handleRemoveItem = async (productId, size, color, customMeasurements) => {
+    try {
+      const itemKey = `${productId}-${size}-${color}-${JSON.stringify(customMeasurements)}`;
+      setRemovingItem(itemKey);
+
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Please login to remove items");
+      }
+
+      const response = await fetch("http://localhost:5000/api/cart/remove", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          productId,
+          size,
+          color,
+          customMeasurements,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to remove item");
+      }
+
+      // Remove from Redux store
+      dispatch(removeFromCart({
+        productId,
+        size,
+        color,
+        customMeasurements
+      }));
+
+    } catch (err) {
+      console.error("Error removing item:", err);
+      alert("Failed to remove item. Please try again.");
+      setRemovingItem(null);
+    }
+  };
+
+  // Clear entire cart
+  const handleClearCart = async () => {
+    if (!window.confirm("Are you sure you want to clear your cart?")) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Please login to clear cart");
+      }
+
+      const response = await fetch("http://localhost:5000/api/cart/clear", {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to clear cart");
+      }
+
+      // Clear Redux store
+      dispatch(clearCart());
+
+    } catch (err) {
+      console.error("Error clearing cart:", err);
+      alert("Failed to clear cart. Please try again.");
+    }
+  };
+
+  // Calculate totals
+  const getSubtotal = () =>
+    cartItems.reduce((total, item) => {
+      const price = item.product?.discount > 0 
+        ? item.product.price - (item.product.price * item.product.discount / 100)
+        : item.product?.price || 0;
+      return total + price * item.quantity;
+    }, 0);
+
+  const getOriginalSubtotal = () =>
+    cartItems.reduce((total, item) => total + (item.product?.price || 0) * item.quantity, 0);
+
+  const shippingThreshold = 500;
+  const shippingCost = getSubtotal() >= shippingThreshold ? 0 : 50;
+  const totalAmount = getSubtotal() + shippingCost;
+  const totalSavings = getOriginalSubtotal() - getSubtotal();
 
   // Animation variants
   const containerVariants = {
@@ -85,10 +206,52 @@ const Cart = () => {
     }
   };
 
-  // Toggle item details expansion
   const toggleExpandItem = (itemKey) => {
     setExpandedItem(expandedItem === itemKey ? null : itemKey);
   };
+
+  // Helper function to get product image
+  const getProductImage = (product) => {
+    return product?.images?.[0]?.url || product?.image?.url || "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1";
+  };
+
+  // Helper function to get product title
+  const getProductTitle = (product) => {
+    return product?.title || product?.name || "Unknown Product";
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white pt-20 pb-16 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-800 mb-4">
+            <FiShoppingBag className="text-2xl text-yellow-500 animate-pulse" />
+          </div>
+          <p className="text-lg">Loading your cart...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white pt-20 pb-16 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto px-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-900/20 mb-4">
+            <FiShoppingBag className="text-2xl text-red-500" />
+          </div>
+          <p className="text-lg text-red-400 mb-4">Error loading cart</p>
+          <p className="text-gray-400 mb-6">{error}</p>
+          <button
+            onClick={fetchCartData}
+            className="bg-yellow-500 text-black px-6 py-2 rounded-lg hover:bg-yellow-400 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white pt-20 pb-16">
@@ -104,13 +267,14 @@ const Cart = () => {
             className="flex items-center text-yellow-400 hover:text-yellow-300 transition-colors group p-2"
           >
             <FiArrowLeft className="text-lg group-hover:-translate-x-1 transition-transform" />
+            <span className="ml-2 text-sm">Continue Shopping</span>
           </button>
           
           <div className="text-center">
-            <h1 className="text-xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
-              Your Cart
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
+              Your Shopping Cart
             </h1>
-            <p className="text-gray-400 text-xs mt-1">
+            <p className="text-gray-400 text-sm mt-1">
               {cartItems.length} {cartItems.length === 1 ? 'item' : 'items'}
             </p>
           </div>
@@ -118,10 +282,11 @@ const Cart = () => {
           {cartItems.length > 0 && (
             <button
               onClick={handleClearCart}
-              className="flex items-center text-red-500 hover:text-red-400 transition-colors p-2"
+              className="flex items-center text-red-500 hover:text-red-400 transition-colors p-2 text-sm"
               aria-label="Clear cart"
             >
-              <FiTrash2 className="text-lg" />
+              <FiTrash2 className="text-lg mr-1" />
+              Clear All
             </button>
           )}
         </motion.div>
@@ -133,20 +298,20 @@ const Cart = () => {
             animate={{ opacity: 1, scale: 1 }}
             className="text-center py-16 px-4"
           >
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-800 mb-6">
-              <FiShoppingBag className="text-3xl text-yellow-500" />
+            <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gray-800 mb-6">
+              <FiShoppingBag className="text-4xl text-yellow-500" />
             </div>
-            <p className="text-xl font-semibold mb-4">Your cart is empty</p>
-            <p className="text-gray-400 max-w-md mx-auto mb-8 text-sm">
-              Looks like you haven't added any items to your cart yet. Start shopping to find amazing products!
+            <p className="text-2xl font-semibold mb-4">Your cart is empty</p>
+            <p className="text-gray-400 max-w-md mx-auto mb-8">
+              Looks like you haven't added any items to your cart yet. Start shopping to find amazing dresses!
             </p>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate("/products")}
-              className="bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-semibold px-6 py-3 rounded-lg shadow-lg hover:shadow-yellow-500/20 transition-all text-sm"
+              className="bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-semibold px-8 py-3 rounded-lg shadow-lg hover:shadow-yellow-500/20 transition-all"
             >
-              Explore Products
+              Explore Dresses
             </motion.button>
           </motion.div>
         ) : (
@@ -155,10 +320,15 @@ const Cart = () => {
             <div className="lg:col-span-2 space-y-4">
               <AnimatePresence mode="popLayout">
                 {cartItems.map((item) => {
-                  const itemKey = `${item.product._id}-${item.size}-${item.color}-${JSON.stringify(item.customMeasurements)}`;
+                  const itemKey = `${item.productId}-${item.size}-${item.color}-${JSON.stringify(item.customMeasurements)}`;
                   const isRemoving = removingItem === itemKey;
                   const isExpanded = expandedItem === itemKey;
+                  const isUpdating = updatingQuantity === itemKey;
                   
+                  const discountedPrice = item.product?.discount > 0 
+                    ? item.product.price - (item.product.price * item.product.discount / 100)
+                    : item.product?.price || 0;
+
                   return (
                     <motion.div
                       key={itemKey}
@@ -175,15 +345,15 @@ const Cart = () => {
                         {/* Product Image */}
                         <motion.div 
                           whileHover={{ scale: 1.05 }}
-                          className="relative flex-shrink-0"
-                          onClick={() => navigate(`/product/${item.product._id}`, { state: { product: item.product } })}
+                          className="relative flex-shrink-0 cursor-pointer"
+                          onClick={() => navigate(`/product/${item.productId}`, { state: { product: item.product } })}
                         >
                           <img
-                            src={item.product.images?.[0]?.url || item.product.image?.url || "/placeholder-image.jpg"}
-                            alt={item.product.title}
+                            src={getProductImage(item.product)}
+                            alt={getProductTitle(item.product)}
                             className="w-20 h-20 object-cover rounded-lg shadow-md"
                           />
-                          {item.product.discount > 0 && (
+                          {item.product?.discount > 0 && (
                             <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
                               -{item.product.discount}%
                             </div>
@@ -195,27 +365,29 @@ const Cart = () => {
                           <div className="flex justify-between items-start">
                             <div className="flex-1 min-w-0">
                               <h3 
-                                className="font-serif text-base hover:text-yellow-400 transition-colors cursor-pointer truncate"
-                                onClick={() => navigate(`/product/${item.product._id}`, { state: { product: item.product } })}
+                                className="font-serif text-lg hover:text-yellow-400 transition-colors cursor-pointer truncate"
+                                onClick={() => navigate(`/product/${item.productId}`, { state: { product: item.product } })}
                               >
-                                {item.product.title}
+                                {getProductTitle(item.product)}
                               </h3>
-                              <p className="text-yellow-400 text-xs truncate">{item.product.brand}</p>
+                              <p className="text-yellow-400 text-sm truncate">{item.product?.brand || "Premium Brand"}</p>
                               
-                              {/* Price - Moved to be more visible */}
-                              <div className="mt-1">
-                                {item.product.discount > 0 ? (
-                                  <div className="flex items-center">
-                                    <span className="text-yellow-400 font-semibold text-sm">
-                                      ${(item.product.price - (item.product.price * item.product.discount / 100)).toFixed(2)}
+                              <div className="mt-2">
+                                {item.product?.discount > 0 ? (
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-yellow-400 font-semibold text-lg">
+                                      ${discountedPrice.toFixed(2)}
                                     </span>
-                                    <span className="text-gray-500 text-xs line-through ml-2">
+                                    <span className="text-gray-500 text-sm line-through">
                                       ${item.product.price.toFixed(2)}
+                                    </span>
+                                    <span className="text-green-400 text-xs bg-green-900/20 px-2 py-1 rounded">
+                                      Save ${(item.product.price - discountedPrice).toFixed(2)}
                                     </span>
                                   </div>
                                 ) : (
-                                  <span className="text-yellow-400 font-semibold text-sm">
-                                    ${item.product.price.toFixed(2)}
+                                  <span className="text-yellow-400 font-semibold text-lg">
+                                    ${(item.product?.price || 0).toFixed(2)}
                                   </span>
                                 )}
                               </div>
@@ -223,22 +395,22 @@ const Cart = () => {
                             
                             {/* Total Price for this item */}
                             <div className="text-right pl-2">
-                              <div className="text-yellow-400 font-semibold text-base">
-                                ${(item.product.price * item.quantity).toFixed(2)}
+                              <div className="text-yellow-400 font-semibold text-lg">
+                                ${(discountedPrice * item.quantity).toFixed(2)}
                               </div>
-                              <div className="text-xs text-gray-400 mt-1">
-                                {item.quantity} × ${item.product.price.toFixed(2)}
+                              <div className="text-sm text-gray-400 mt-1">
+                                {item.quantity} × ${discountedPrice.toFixed(2)}
                               </div>
                             </div>
                           </div>
 
                           {/* Expandable details */}
-                          <div className="mt-2">
+                          <div className="mt-3">
                             <button 
                               onClick={() => toggleExpandItem(itemKey)}
-                              className="flex items-center text-xs text-gray-400 hover:text-gray-300 w-full justify-between py-1"
+                              className="flex items-center text-sm text-gray-400 hover:text-gray-300 w-full justify-between py-1"
                             >
-                              <span className="text-green-500 font-bold font-serif">View details</span>
+                              <span className="text-green-400 font-semibold">Item Details</span>
                               <FiChevronRight className={`transform transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
                             </button>
                             
@@ -249,20 +421,20 @@ const Cart = () => {
                                   animate={{ height: 'auto', opacity: 1 }}
                                   exit={{ height: 0, opacity: 0 }}
                                   transition={{ duration: 0.3 }}
-                                  className="overflow-hidden"
+                                  className="overflow-hidden mt-2"
                                 >
                                   {/* Options */}
-                                  <div className="flex flex-wrap gap-2 mt-2">
+                                  <div className="flex flex-wrap gap-2">
                                     {item.size && (
-                                      <span className="bg-gray-700 text-xs px-2 py-1 rounded">
+                                      <span className="bg-gray-700 text-sm px-3 py-1 rounded">
                                         Size: {item.size}
                                       </span>
                                     )}
                                     {item.color && (
-                                      <span className="bg-gray-700 text-xs px-2 py-1 rounded flex items-center">
-                                        Color: 
+                                      <span className="bg-gray-700 text-sm px-3 py-1 rounded flex items-center">
+                                        Color: {item.color}
                                         <span 
-                                          className="w-3 h-3 rounded-full ml-1 border border-gray-600"
+                                          className="w-4 h-4 rounded-full ml-2 border border-gray-600"
                                           style={{ 
                                             backgroundColor: item.color.toLowerCase().includes("black") ? "#000" :
                                             item.color.toLowerCase().includes("blue") ? "#1e40af" :
@@ -273,29 +445,27 @@ const Cart = () => {
                                         />
                                       </span>
                                     )}
+                                    {item.sizeType && (
+                                      <span className="bg-gray-700 text-sm px-3 py-1 rounded">
+                                        Type: {item.sizeType === "custom" ? "Custom Size" : "Standard Size"}
+                                      </span>
+                                    )}
                                   </div>
 
                                   {/* Custom Measurements */}
                                   {item.customMeasurements && Object.keys(item.customMeasurements).length > 0 && (
                                     <div className="mt-3">
-                                      <p className="text-xs text-yellow-400 font-medium mb-1">Custom Measurements:</p>
-                                      <div className="grid grid-cols-2 gap-1 text-xs text-gray-300">
+                                      <p className="text-sm text-yellow-400 font-medium mb-2">Custom Measurements:</p>
+                                      <div className="grid grid-cols-2 gap-2 text-sm text-gray-300">
                                         {Object.entries(item.customMeasurements).map(([key, value]) => (
                                           value && (
                                             <div key={key} className="flex justify-between">
                                               <span className="capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
-                                              <span className="font-medium">{value}</span>
+                                              <span className="font-medium">{value}"</span>
                                             </div>
                                           )
                                         ))}
                                       </div>
-                                    </div>
-                                  )}
-                                  
-                                  {/* Savings info */}
-                                  {item.product.discount > 0 && (
-                                    <div className="text-green-400 text-xs mt-2">
-                                      Save ${((item.product.price * item.product.discount / 100) * item.quantity).toFixed(2)}
                                     </div>
                                   )}
                                 </motion.div>
@@ -303,56 +473,62 @@ const Cart = () => {
                             </AnimatePresence>
                           </div>
                           
-                          {/* Quantity Controls - Moved below the price */}
+                          {/* Quantity Controls */}
                           <div className="flex items-center justify-between mt-4">
                             <div className="flex items-center bg-gray-700 rounded-lg p-1">
                               <motion.button
                                 whileTap={{ scale: 0.9 }}
                                 onClick={() => handleUpdateQuantity(
-                                  item.product._id, 
+                                  item.productId, 
                                   item.size, 
                                   item.color, 
                                   item.customMeasurements,
                                   item.quantity - 1
                                 )}
                                 className="p-2 text-gray-300 hover:text-white hover:bg-gray-600 rounded transition-colors"
-                                disabled={item.quantity <= 1}
+                                disabled={item.quantity <= 1 || isUpdating}
                                 aria-label="Decrease quantity"
                               >
-                                <FiMinus size={16} />
+                                <FiMinus size={18} />
                               </motion.button>
-                              <span className="mx-3 w-2 text-center font-medium">{item.quantity}</span>
+                              
+                              <span className="mx-4 w-8 text-center font-medium text-lg">
+                                {isUpdating ? "..." : item.quantity}
+                              </span>
+                              
                               <motion.button
                                 whileTap={{ scale: 0.9 }}
                                 onClick={() => handleUpdateQuantity(
-                                  item.product._id, 
+                                  item.productId, 
                                   item.size, 
                                   item.color, 
                                   item.customMeasurements,
                                   item.quantity + 1
                                 )}
-                                className="p-1 text-gray-300 hover:text-white hover:bg-gray-600 rounded transition-colors"
+                                className="p-2 text-gray-300 hover:text-white hover:bg-gray-600 rounded transition-colors"
+                                disabled={isUpdating}
                                 aria-label="Increase quantity"
                               >
-                                <FiPlus size={16} />
+                                <FiPlus size={18} />
                               </motion.button>
                             </div>
                             
-                            {/* Delete button - Moved to the right side */}
+                            {/* Delete button */}
                             <motion.button
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
                               onClick={() => handleRemoveItem(
-                                item.product._id, 
+                                item.productId, 
                                 item.size, 
                                 item.color, 
                                 item.customMeasurements
                               )}
-                              className="text-red-500 hover:text-red-400 transition-colors p-1 flex items-center"
+                              className="text-red-500 hover:text-red-400 transition-colors p-2 flex items-center text-sm"
                               aria-label="Remove item"
+                              disabled={isRemoving}
                             >
-                              <FiTrash2 size={15} />
-                              <span className="ml-1 text-sm">Remove</span>
+                              <FiTrash2 size={16} />
+                              <span className="ml-1">{isRemoving ? "Removing..." : "Remove"}</span>
                             </motion.button>
                           </div>
                         </div>
@@ -363,32 +539,32 @@ const Cart = () => {
               </AnimatePresence>
             </div>
 
-            {/* Order Summary - Sticky on mobile */}
+            {/* Order Summary */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-5 border border-gray-700 lg:h-fit sticky bottom-0 lg:top-24 z-20 shadow-2xl lg:shadow-lg"
+              className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 lg:h-fit sticky bottom-0 lg:top-24 z-20 shadow-2xl lg:shadow-lg"
             >
-              <h2 className="text-lg font-semibold mb-5 pb-3 border-b border-gray-700 flex items-center">
-                <FiShoppingBag className="mr-2 text-yellow-400" />
+              <h2 className="text-xl font-semibold mb-6 pb-3 border-b border-gray-700 flex items-center">
+                <FiShoppingBag className="mr-3 text-yellow-400" />
                 Order Summary
               </h2>
               
-              <div className="space-y-3 mb-5 text-sm">
-                <div className="flex justify-between">
+              <div className="space-y-4 mb-6">
+                <div className="flex justify-between text-lg">
                   <span>Subtotal ({cartItems.reduce((sum, item) => sum + item.quantity, 0)} items)</span>
-                  <span>${getTotal().toFixed(2)}</span>
+                  <span>${getSubtotal().toFixed(2)}</span>
                 </div>
                 
-                {savings > 0 && (
+                {totalSavings > 0 && (
                   <div className="flex justify-between text-green-400">
-                    <span>Discount Savings</span>
-                    <span>-${savings.toFixed(2)}</span>
+                    <span>Total Savings</span>
+                    <span>-${totalSavings.toFixed(2)}</span>
                   </div>
                 )}
                 
-                <div className="flex justify-between">
+                <div className="flex justify-between text-lg">
                   <span>Shipping</span>
                   <span className={shippingCost === 0 ? "text-green-400" : ""}>
                     {shippingCost === 0 ? "FREE" : `$${shippingCost.toFixed(2)}`}
@@ -396,30 +572,32 @@ const Cart = () => {
                 </div>
                 
                 {shippingCost > 0 && (
-                  <div className="text-xs text-yellow-400 bg-yellow-900/20 p-2 rounded">
-                    Add ${(shippingThreshold - getTotal()).toFixed(2)} more for free shipping!
+                  <div className="text-sm text-yellow-400 bg-yellow-900/20 p-3 rounded-lg">
+                    Add ${(shippingThreshold - getSubtotal()).toFixed(2)} more for free shipping!
                   </div>
                 )}
               </div>
               
-              <div className="border-t border-gray-700 pt-4 mb-5">
-                <div className="flex justify-between font-semibold text-lg">
-                  <span>Total</span>
+              <div className="border-t border-gray-700 pt-4 mb-6">
+                <div className="flex justify-between font-semibold text-xl">
+                  <span>Total Amount</span>
                   <span className="text-yellow-400">${totalAmount.toFixed(2)}</span>
                 </div>
-                <p className="text-xs text-gray-400 mt-1">Inclusive of all taxes</p>
+                <p className="text-sm text-gray-400 mt-2">Inclusive of all taxes • Free returns within 30 days</p>
               </div>
               
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-semibold py-3 rounded-lg shadow-lg hover:shadow-yellow-500/20 transition-all mb-3 text-base"
+                className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-semibold py-4 rounded-lg shadow-lg hover:shadow-yellow-500/20 transition-all mb-4 text-lg"
+                onClick={() => navigate("/checkout")}
+                disabled={cartItems.length === 0}
               >
-                Proceed to Checkout
+                {cartItems.length === 0 ? "Cart is Empty" : "Proceed to Checkout"}
               </motion.button>
               
               <p className="text-xs text-gray-400 text-center">
-                Free returns within 30 days • Secure payment
+                🔒 Secure payment • 30-day return policy • Worldwide shipping
               </p>
             </motion.div>
           </div>

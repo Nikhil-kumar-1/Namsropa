@@ -19,7 +19,7 @@ const FeaturedCollection = () => {
       link: "/category/all"
     },
     {
-      title: "Festive Collection",
+      title: "Upcoming Collection",
       description: "Celebrate special occasions with our luxurious festive wear",
       image: "https://images.unsplash.com/photo-1581044777550-4cfa60707c03?auto=format&fit=crop&w=1172&q=80",
       items: 32,

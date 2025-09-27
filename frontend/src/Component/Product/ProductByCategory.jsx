@@ -3,8 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import { backendUrl } from '../../config/config';
-import { useDispatch } from 'react-redux';
-import { addToCart } from '../../cartSlice'; // Import the addToCart action
+
 
 const CategoryPage = () => {
   const [clothes, setClothes] = useState([]);
@@ -13,7 +12,7 @@ const CategoryPage = () => {
   const [sortBy, setSortBy] = useState('newest');
   const { category } = useParams();
   const navigate = useNavigate();
-  const dispatch = useDispatch(); // Initialize dispatch
+
 
   // Fetch clothes based on category from URL
   useEffect(() => {
@@ -98,7 +97,7 @@ const CategoryPage = () => {
     };
     
     // Dispatch addToCart action
-    dispatch(addToCart(cartItem));
+    dispatch(addToCartAsync(cartItem));
     
     // Show success feedback (you could use a toast notification here)
     console.log("Added to cart:", product.title);
@@ -259,7 +258,7 @@ const CategoryPage = () => {
                   <img
                     src={item.images?.[0]?.url || item.image?.url || "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?ixlib=rb-4.0.3&auto=format&fit=crop&w=774&q=80"}
                     alt={item.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-fit group-hover:scale-105 transition-transform duration-500"
                     onError={(e) => {
                       e.target.src = "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?ixlib=rb-4.0.3&auto=format&fit=crop&w=774&q=80";
                     }}

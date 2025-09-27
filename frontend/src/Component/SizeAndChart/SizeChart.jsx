@@ -59,95 +59,170 @@ const SizeChart = () => {
         </motion.section>
 
         {/* Size Table */}
-        <motion.section 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="bg-gray-50 p-6 rounded-xl shadow-sm"
-        >
-          <h2 className="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-yellow-500 pb-2 inline-block">
-            Size Chart
-          </h2>
-          
-          <div className="overflow-x-auto rounded-lg shadow-md">
-            <table className="min-w-full border-collapse text-gray-800">
-              <thead>
-                <tr className="bg-yellow-600 text-white">
-                  <th className="px-4 py-3 text-left font-semibold">SIZE</th>
-                  <th className="px-4 py-3 font-semibold">XS</th>
-                  <th className="px-4 py-3 font-semibold">S</th>
-                  <th className="px-4 py-3 font-semibold">M</th>
-                  <th className="px-4 py-3 font-semibold">L</th>
-                  <th className="px-4 py-3 font-semibold">XL</th>
-                  <th className="px-4 py-3 font-semibold">1X</th>
-                  <th className="px-4 py-3 font-semibold">2X</th>
-                  <th className="px-4 py-3 font-semibold">3X</th>
-                  <th className="px-4 py-3 font-semibold">4X</th>
-                  <th className="px-4 py-3 font-semibold">5X</th>
-                  <th className="px-4 py-3 font-semibold">6X</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="bg-white even:bg-gray-100">
-                  <td className="px-4 py-3 font-semibold border-b border-gray-200">0</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">2</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">4</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">6</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">8</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">10</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">12</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">14</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">16</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">18</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">16W</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">18W</td>
-                </tr>
-                <tr className="bg-white even:bg-gray-100">
-                  <td className="px-4 py-3 font-semibold border-b border-gray-200">Bust (inches)</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">32</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">33</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">34</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">35</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">36</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">37</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">38.5</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">40</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">41.5</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">43.5</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">43</td>
-                </tr>
-                <tr className="bg-white even:bg-gray-100">
-                  <td className="px-4 py-3 font-semibold border-b border-gray-200">Natural Waist (inches)</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">25</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">26</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">27</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">28</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">29</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">30</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">31.5</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">33</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">34.5</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">36.5</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">36</td>
-                </tr>
-                <tr className="bg-white even:bg-gray-100">
-                  <td className="px-4 py-3 font-semibold border-b border-gray-200">Hip (inches)</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">35</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">36</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">37</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">38</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">39</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">40</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">41.5</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">43</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">44.5</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">46.5</td>
-                  <td className="px-4 py-3 text-center border-b border-gray-200">46</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </motion.section>
+ 
+    <motion.section
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.4 }}
+      className="bg-gray-50 p-6 rounded-xl shadow-sm"
+    >
+      <h2 className="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-yellow-500 pb-2 inline-block">
+        Size Chart
+      </h2>
+
+      <div className="overflow-x-auto rounded-lg shadow-md">
+        <table className="min-w-full border border-gray-300 text-gray-800 text-sm">
+          <thead>
+            <tr className="bg-yellow-600 text-white text-center">
+              <th rowSpan="2" className="px-4 py-3 border border-gray-300">
+                SIZE
+              </th>
+              <th colSpan="2" className="px-4 py-3 border border-gray-300">
+                XS
+              </th>
+              <th colSpan="2" className="px-4 py-3 border border-gray-300">
+                S
+              </th>
+              <th colSpan="2" className="px-4 py-3 border border-gray-300">
+                M
+              </th>
+              <th colSpan="2" className="px-4 py-3 border border-gray-300">
+                L
+              </th>
+              <th colSpan="2" className="px-4 py-3 border border-gray-300">
+                XL
+              </th>
+              <th colSpan="2" className="px-4 py-3 border border-gray-300">
+                1X
+              </th>
+              <th colSpan="2" className="px-4 py-3 border border-gray-300">
+                2X
+              </th>
+              <th colSpan="2" className="px-4 py-3 border border-gray-300">
+                3X
+              </th>
+              <th colSpan="2" className="px-4 py-3 border border-gray-300">
+                4X
+              </th>
+              <th colSpan="2" className="px-4 py-3 border border-gray-300">
+                5X
+              </th>
+              <th colSpan="2" className="px-4 py-3 border border-gray-300">
+                6X
+              </th>
+            </tr>
+            <tr className="bg-yellow-500 text-white text-center">
+              <td className="px-4 py-2 border border-gray-300">0</td>
+              <td className="px-4 py-2 border border-gray-300">2</td>
+              <td className="px-4 py-2 border border-gray-300">4</td>
+              <td className="px-4 py-2 border border-gray-300">6</td>
+              <td className="px-4 py-2 border border-gray-300">8</td>
+              <td className="px-4 py-2 border border-gray-300">10</td>
+              <td className="px-4 py-2 border border-gray-300">12</td>
+              <td className="px-4 py-2 border border-gray-300">14</td>
+              <td className="px-4 py-2 border border-gray-300">16</td>
+              <td className="px-4 py-2 border border-gray-300">18</td>
+              <td className="px-4 py-2 border border-gray-300">16W</td>
+              <td className="px-4 py-2 border border-gray-300">18W</td>
+              <td className="px-4 py-2 border border-gray-300">20W</td>
+              <td className="px-4 py-2 border border-gray-300">22W</td>
+              <td className="px-4 py-2 border border-gray-300">24W</td>
+              <td className="px-4 py-2 border border-gray-300">26W</td>
+              <td className="px-4 py-2 border border-gray-300">28W</td>
+              <td className="px-4 py-2 border border-gray-300">30W</td>
+              <td className="px-4 py-2 border border-gray-300">32W</td>
+              <td className="px-4 py-2 border border-gray-300">34W</td>
+              <td className="px-4 py-2 border border-gray-300">36W</td>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr className="bg-white even:bg-gray-100 text-center">
+              <td className="px-4 py-3 font-semibold border border-gray-300">
+                Bust
+              </td>
+              <td className="border px-4 py-3">32</td>
+              <td className="border px-4 py-3">33</td>
+              <td className="border px-4 py-3">34</td>
+              <td className="border px-4 py-3">35</td>
+              <td className="border px-4 py-3">36</td>
+              <td className="border px-4 py-3">37</td>
+              <td className="border px-4 py-3">38.5</td>
+              <td className="border px-4 py-3">40</td>
+              <td className="border px-4 py-3">41.5</td>
+              <td className="border px-4 py-3">43.5</td>
+              <td className="border px-4 py-3">43</td>
+              <td className="border px-4 py-3">45</td>
+              <td className="border px-4 py-3">47</td>
+              <td className="border px-4 py-3">49</td>
+              <td className="border px-4 py-3">51</td>
+              <td className="border px-4 py-3">53</td>
+              <td className="border px-4 py-3">55</td>
+              <td className="border px-4 py-3">57</td>
+              <td className="border px-4 py-3">60</td>
+              <td className="border px-4 py-3">63</td>
+              <td className="border px-4 py-3">66</td>
+            </tr>
+
+            <tr className="bg-white even:bg-gray-100 text-center">
+              <td className="px-4 py-3 font-semibold border border-gray-300">
+                Natural Waist
+              </td>
+              <td className="border px-4 py-3">25</td>
+              <td className="border px-4 py-3">26</td>
+              <td className="border px-4 py-3">27</td>
+              <td className="border px-4 py-3">28</td>
+              <td className="border px-4 py-3">29</td>
+              <td className="border px-4 py-3">30</td>
+              <td className="border px-4 py-3">31.5</td>
+              <td className="border px-4 py-3">33</td>
+              <td className="border px-4 py-3">34.5</td>
+              <td className="border px-4 py-3">36.5</td>
+              <td className="border px-4 py-3">36</td>
+              <td className="border px-4 py-3">38</td>
+              <td className="border px-4 py-3">40</td>
+              <td className="border px-4 py-3">42</td>
+              <td className="border px-4 py-3">44</td>
+              <td className="border px-4 py-3">46</td>
+              <td className="border px-4 py-3">48</td>
+              <td className="border px-4 py-3">50</td>
+              <td className="border px-4 py-3">53</td>
+              <td className="border px-4 py-3">56</td>
+              <td className="border px-4 py-3">59</td>
+            </tr>
+
+            <tr className="bg-white even:bg-gray-100 text-center">
+              <td className="px-4 py-3 font-semibold border border-gray-300">
+                Hip
+              </td>
+              <td className="border px-4 py-3">35</td>
+              <td className="border px-4 py-3">36</td>
+              <td className="border px-4 py-3">37</td>
+              <td className="border px-4 py-3">38</td>
+              <td className="border px-4 py-3">39</td>
+              <td className="border px-4 py-3">40</td>
+              <td className="border px-4 py-3">41.5</td>
+              <td className="border px-4 py-3">43</td>
+              <td className="border px-4 py-3">44.5</td>
+              <td className="border px-4 py-3">46.5</td>
+              <td className="border px-4 py-3">46</td>
+              <td className="border px-4 py-3">48</td>
+              <td className="border px-4 py-3">50</td>
+              <td className="border px-4 py-3">52</td>
+              <td className="border px-4 py-3">54</td>
+              <td className="border px-4 py-3">56</td>
+              <td className="border px-4 py-3">58</td>
+              <td className="border px-4 py-3">60</td>
+              <td className="border px-4 py-3">63</td>
+              <td className="border px-4 py-3">66</td>
+              <td className="border px-4 py-3">69</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </motion.section>
+  
+
 
         {/* Custom Measurements */}
         <motion.section 
@@ -252,11 +327,11 @@ const SizeChart = () => {
           
           <div className="space-y-4 text-gray-700">
             <p className="text-lg">
-              Call toll-free: <span className="font-semibold text-yellow-700">1 (855) NAMSROPA (626-7767)</span>
+              Call toll-free: <span className="font-semibold text-yellow-700">+1 (307) 310-2686</span>
             </p>
-            <p className="text-lg">Mon-Fri, 8 am - 4 pm PST</p>
+            <p className="text-lg">Mon-Fri, 9 am - 5 pm PST</p>
             <p className="text-lg">
-              Or email us: <span className="font-semibold text-yellow-700">support@namsropa.com</span>
+              Or email us: <span className="font-semibold text-yellow-700">info@namsropa.com</span>
             </p>
           </div>
         </motion.section>

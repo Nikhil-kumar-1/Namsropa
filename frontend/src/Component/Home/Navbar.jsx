@@ -140,14 +140,21 @@ const authState = useSelector((state) => state.auth || {});
       >
         <div className="max-w-7xl mx-auto flex justify-between items-center py-4 px-6 uppercase tracking-wide">
           <motion.div
-            className="cursor-pointer"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Link to="/">
-              <img src="Logo.png" alt="Nam's Ropa Logo" className="h-10 bg-white w-auto" />
-            </Link>
-          </motion.div>
+  className="cursor-pointer flex items-center h-14" // navbar height fix
+  whileHover={{ scale: 1.05 }}
+  whileTap={{ scale: 0.95 }}
+>
+  <Link to="/" className="flex items-center">
+    <div className="h-25 mb-6 w-auto flex items-center"> {/* container fix */}
+      <img
+        src="Logo.jpeg"
+        alt="Nam's Ropa Logo"
+        className="max-h-full w-auto object-contain"
+      />
+    </div>
+  </Link>
+</motion.div>
+
 
           {/* Desktop Menu */}
           {!loading && !error && (

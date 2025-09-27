@@ -240,8 +240,10 @@ const ContactUs = () => {
                     <h3 className="font-semibold text-lg text-white">
                       Store Location
                     </h3>
-                    <p className="text-gray-300">Namsropa</p>
-                    <p className="text-gray-300">United State</p>
+                    <p className="text-gray-300">USA Address:</p>
+                    <p className="text-gray-300">30 N. Gould St. Suite R
+Sheridan County
+Sheridan, WYOMING USA 82801</p>
                   </div>
                 </div>
 

@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const Cart = require("../model/Cart");
 const Dress = require("../model/Product"); // <-- this points to Product.js
+const mongoose = require("mongoose");
 
 
 // ✅ Add item to cart
@@ -13,19 +14,28 @@ exports.addToCart = async (req, res) => {
     const userId = decoded.id;
 
     const { productId, quantity = 1, sizeType = "standard", size, customMeasurements, color } = req.body;
-
     if (!productId) return res.status(400).json({ success: false, message: "Product ID required" });
 
+    // Validate product exists
     const product = await Dress.findById(productId);
     if (!product) return res.status(404).json({ success: false, message: "Product not found" });
 
+    // Find existing cart
     let cart = await Cart.findOne({ user: userId });
 
+    // New cart item
     const cartItem = { productId, quantity, sizeType, size, customMeasurements, color };
 
     if (!cart) {
+      // No cart exists, create new
       cart = new Cart({ user: userId, items: [cartItem] });
     } else {
+      // Remove invalid items (missing productId)
+      cart.items = cart.items.filter(
+        (item) => item.productId && mongoose.Types.ObjectId.isValid(item.productId)
+      );
+
+      // Check if same item exists
       const existingIndex = cart.items.findIndex(
         (item) =>
           item.productId.toString() === productId &&
@@ -35,14 +45,17 @@ exports.addToCart = async (req, res) => {
       );
 
       if (existingIndex > -1) {
+        // Update quantity if item exists
         cart.items[existingIndex].quantity += quantity;
       } else {
+        // Add new item
         cart.items.push(cartItem);
       }
     }
 
     await cart.save();
     return res.status(200).json({ success: true, message: "Item added to cart", cart });
+
   } catch (error) {
     console.error("Add to Cart Error:", error);
     return res.status(500).json({ success: false, message: "Server error", error: error.message });
@@ -51,6 +64,7 @@ exports.addToCart = async (req, res) => {
 
 // ✅ Get user cart
 exports.getCart = async (req, res) => {
+
   try {
     console.log("🔹 getCart called");
 

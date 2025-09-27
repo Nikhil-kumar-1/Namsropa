@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
 const ProductDetails = () => {
   const location = useLocation();
@@ -57,13 +58,14 @@ const ProductDetails = () => {
       return;
     }
 
+    // Prepare cart data
     const cartData = {
       productId: product._id,
       quantity,
-      size: selectedSizeType === "standard" ? selectedSize : "Custom",
-      color: selectedColor,
       sizeType: selectedSizeType,
-      customMeasurements: selectedSizeType === "custom" ? customMeasurements : null,
+      size: selectedSizeType === "standard" ? selectedSize : null,
+      color: selectedColor,
+      customMeasurements: selectedSizeType === "custom" ? customMeasurements : {},
     };
 
     const response = await fetch("http://localhost:5000/api/cart/add", {
@@ -77,7 +79,7 @@ const ProductDetails = () => {
 
     const result = await response.json();
 
-    if (response.ok && result.success !== false) {
+    if (response.ok && result.success) {
       alert("✅ Item added to cart successfully!");
       // Reset form
       setQuantity(1);
@@ -117,37 +119,32 @@ const ProductDetails = () => {
 
   // Size chart data
   const sizeChart = {
-    measurements: ["Bust (inches)", "Waist (inches)", "Hips (inches)"],
-    sizes: {
-      XS: [32, 24, 34],
-      S: [34, 26, 36],
-      M: [36, 28, 38],
-      L: [38, 30, 40],
-      XL: [40, 32, 42],
-      XXL: [42, 34, 44],
-      "0": [32, 24, 34],
-      "2": [33, 25, 35],
-      "4": [34, 26, 36],
-      "6": [35, 27, 37],
-      "8": [36, 28, 38],
-      "10": [37, 29, 39],
-      "12": [38, 30, 40],
-      "14": [39, 31, 41],
-      "16": [40, 32, 42],
-      "18": [41, 33, 43],
-      "16w": [42, 34, 44],
-      "18w": [43, 35, 45],
-      "20w": [44, 36, 46],
-      "22w": [45, 37, 47],
-      "24w": [46, 38, 48],
-      "26w": [47, 39, 49],
-      "28w": [48, 40, 50],
-      "30w": [49, 41, 51],
-      "32w": [50, 42, 52],
-      "34w": [51, 43, 53],
-      "36w": [52, 44, 54],
-    },
-  };
+  headers: {
+    XS: ["0", "2"],
+    S: ["4", "6"],
+    M: ["8", "10"],
+    L: ["12", "14"],
+    XL: ["16", "18"],
+    "1X": ["16W", "18W"],
+    "2X": ["20W", "22W"],
+    "3X": ["24W", "26W"],
+    "4X": ["28W", "30W"],
+    "5X": ["32W", "34W"],
+    "6X": ["36W"],
+  },
+  Bust: [
+    32, 33, 34, 35, 36, 37, 38.5, 40, 41.5, 43.5,
+    43, 45, 47, 49, 51, 53, 55, 57, 60, 63, 66,
+  ],
+  Waist: [
+    25, 26, 27, 28, 29, 30, 31.5, 33, 34.5, 36.5,
+    36, 38, 40, 42, 44, 46, 48, 50, 53, 56, 59,
+  ],
+  Hip: [
+    35, 36, 37, 38, 39, 40, 41.5, 43, 44.5, 46.5,
+    46, 48, 50, 52, 54, 56, 58, 60, 63, 66, 69,
+  ],
+};
 
   // Calculate discounted price
   const discountedPrice = product.price - (product.price * (product.discount / 100));
@@ -519,50 +516,78 @@ const ProductDetails = () => {
 
               {/* Size Chart Modal */}
               {showSizeChart && (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="bg-gray-900 rounded-xl max-w-6xl w-full p-6 border border-yellow-800 max-h-screen overflow-y-auto"
-                  >
-                    <div className="flex justify-between items-center mb-4 border-b border-yellow-800 pb-3">
-                      <h3 className="text-xl font-bold text-yellow-400">Size Guide</h3>
-                      <button onClick={() => setShowSizeChart(false)} className="text-gray-400 hover:text-yellow-400 transition-colors">
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                    </div>
+  <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="bg-gray-900 rounded-xl max-w-7xl w-full p-6 border border-yellow-800 max-h-screen overflow-auto"
+    >
+      {/* Header */}
+      <div className="flex justify-between items-center mb-4 border-b border-yellow-800 pb-3">
+        <h3 className="text-xl font-bold text-yellow-400">Size Guide</h3>
+        <button
+          onClick={() => setShowSizeChart(false)}
+          className="text-gray-400 hover:text-yellow-400 transition-colors"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
 
-                    <div className="overflow-x-auto">
-                      <table className="min-w-full bg-gray-800 rounded-lg overflow-hidden">
-                        <thead>
-                          <tr className="bg-yellow-900/30">
-                            <th className="py-3 px-4 text-left text-yellow-400 font-semibold">Size</th>
-                            {sizeChart.measurements.map((measure, idx) => (
-                              <th key={idx} className="py-3 px-4 text-center text-yellow-400 font-semibold">
-                                {measure}
-                              </th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {Object.entries(sizeChart.sizes).map(([size, measurements]) => (
-                            <tr key={size} className="border-b border-yellow-800/20 even:bg-gray-800/50">
-                              <td className="py-3 px-4 text-center font-medium text-white">{size}</td>
-                              {measurements.map((value, idx) => (
-                                <td key={idx} className="py-3 px-4 text-center text-gray-300">
-                                  {value}"
-                                </td>
-                              ))}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </motion.div>
-                </div>
-              )}
+      {/* Table */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full border border-yellow-800 text-gray-300 text-sm">
+          <thead>
+            {/* First Row: XS, S, ... */}
+            <tr className="bg-yellow-900/30 text-yellow-400 text-center">
+              <th rowSpan="2" className="py-3 px-4 border border-yellow-800 text-left font-semibold">Size</th>
+              {Object.entries(sizeChart.headers).map(([label, subs]) => (
+                <th
+                  key={label}
+                  colSpan={subs.length}
+                  className="py-3 px-4 border border-yellow-800 font-semibold"
+                >
+                  {label}
+                </th>
+              ))}
+            </tr>
+            {/* Second Row: 0,2,4,6... */}
+            <tr className="bg-yellow-900/20 text-yellow-300 text-center">
+              {Object.values(sizeChart.headers).flat().map((num, i) => (
+                <th key={i} className="py-2 px-4 border border-yellow-800 font-medium">{num}</th>
+              ))}
+            </tr>
+          </thead>
+
+          <tbody>
+            {/* Bust Row */}
+            <tr className="even:bg-gray-800/50 text-center">
+              <td className="py-3 px-4 font-semibold text-yellow-400 border border-yellow-800 text-left">Bust</td>
+              {sizeChart.Bust.map((val, i) => (
+                <td key={i} className="py-3 px-4 border border-yellow-800">{val}</td>
+              ))}
+            </tr>
+            {/* Waist Row */}
+            <tr className="even:bg-gray-800/50 text-center">
+              <td className="py-3 px-4 font-semibold text-yellow-400 border border-yellow-800 text-left">Natural Waist</td>
+              {sizeChart.Waist.map((val, i) => (
+                <td key={i} className="py-3 px-4 border border-yellow-800">{val}</td>
+              ))}
+            </tr>
+            {/* Hip Row */}
+            <tr className="even:bg-gray-800/50 text-center">
+              <td className="py-3 px-4 font-semibold text-yellow-400 border border-yellow-800 text-left">Hip</td>
+              {sizeChart.Hip.map((val, i) => (
+                <td key={i} className="py-3 px-4 border border-yellow-800">{val}</td>
+              ))}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </motion.div>
+  </div>
+)}
 
               {/* Quantity and Add to Cart */}
               <div className="mb-6">
