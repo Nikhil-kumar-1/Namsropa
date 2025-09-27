@@ -1,37 +1,35 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-// Async thunk to fetch cart from backend
-export const fetchCart = createAsyncThunk("cart/fetchCart", async (_, { rejectWithValue }) => {
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) return []; // no token, return empty cart
+// Fetch cart from backend
+export const fetchCart = createAsyncThunk(
+  "cart/fetchCart",
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return [];
 
-    // Fetch cart from backend
-    const response = await fetch("http://localhost:5000/api/cart/", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+      const response = await fetch("http://localhost:5000/api/cart/getCart", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-    if (!response.ok) throw new Error("Failed to fetch cart");
+      if (!response.ok) throw new Error("Failed to fetch cart");
 
-    const data = await response.json();
-    return data.cart || [];
-  } catch (error) {
-    console.error("Fetch Cart Error:", error);
-    return rejectWithValue([]);
+      const data = await response.json();
+      return data.cart.items || []; // Only return items
+    } catch (error) {
+      console.error("Fetch Cart Error:", error);
+      return rejectWithValue([]);
+    }
   }
-});
+);
 
-// Async thunk to add item to cart (both API and Redux)
+// Add item to cart (API + Redux)
 export const addToCartAsync = createAsyncThunk(
   "cart/addToCartAsync",
   async (cartData, { rejectWithValue, dispatch }) => {
     try {
       const token = localStorage.getItem("token");
-      if (!token) {
-        throw new Error("Please login to add items to cart");
-      }
+      if (!token) throw new Error("Please login to add items to cart");
 
       const response = await fetch("http://localhost:5000/api/cart/add", {
         method: "POST",
@@ -43,10 +41,9 @@ export const addToCartAsync = createAsyncThunk(
       });
 
       const result = await response.json();
-
       if (response.ok && result.success) {
-        // Also add to Redux store
-        dispatch(addToCartLocal(cartData));
+        // Add item to Redux immediately
+        dispatch(addToCartLocal(result.cartItem || cartData)); 
         return result;
       } else {
         throw new Error(result.message || "Unable to add item");
@@ -64,14 +61,13 @@ const initialState = {
   error: null,
 };
 
+// Slice
 const cartSlice = createSlice({
   name: "cart",
   initialState,
   reducers: {
-    // Local Redux cart management (for immediate UI update)
     addToCartLocal: (state, action) => {
       const { productId, quantity, size, color, customMeasurements, sizeType, product } = action.payload;
-
       const existingItem = state.items.find(
         (item) =>
           item.productId === productId &&
@@ -79,22 +75,12 @@ const cartSlice = createSlice({
           item.color === color &&
           JSON.stringify(item.customMeasurements) === JSON.stringify(customMeasurements)
       );
-
       if (existingItem) {
         existingItem.quantity += quantity;
       } else {
-        state.items.push({ 
-          productId, 
-          quantity, 
-          size, 
-          color, 
-          customMeasurements, 
-          sizeType,
-          product // Include product details for immediate UI
-        });
+        state.items.push({ productId, quantity, size, color, customMeasurements, sizeType, product });
       }
     },
-
     removeFromCart: (state, action) => {
       const { productId, size, color, customMeasurements } = action.payload;
       state.items = state.items.filter(
@@ -107,7 +93,6 @@ const cartSlice = createSlice({
           )
       );
     },
-
     updateQuantity: (state, action) => {
       const { productId, size, color, customMeasurements, quantity } = action.payload;
       const item = state.items.find(
@@ -119,18 +104,16 @@ const cartSlice = createSlice({
       );
       if (item) item.quantity = quantity;
     },
-
     clearCart: (state) => {
       state.items = [];
     },
-
     setCartItems: (state, action) => {
       state.items = action.payload;
     },
   },
   extraReducers: (builder) => {
     builder
-      // Fetch Cart
+      // Fetch cart
       .addCase(fetchCart.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -143,14 +126,13 @@ const cartSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      // Add to Cart Async
+      // Add to cart
       .addCase(addToCartAsync.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(addToCartAsync.fulfilled, (state, action) => {
+      .addCase(addToCartAsync.fulfilled, (state) => {
         state.loading = false;
-        // Item already added via addToCartLocal in the thunk
       })
       .addCase(addToCartAsync.rejected, (state, action) => {
         state.loading = false;
@@ -160,19 +142,12 @@ const cartSlice = createSlice({
 });
 
 // Selectors
+export const selectCartItems = (state) => state.cart.items;
 export const selectCartTotalItems = (state) =>
   state.cart.items.reduce((total, item) => total + item.quantity, 0);
-
-export const selectCartItems = (state) => state.cart.items;
 export const selectCartLoading = (state) => state.cart.loading;
 export const selectCartError = (state) => state.cart.error;
 
-export const { 
-  addToCartLocal, 
-  removeFromCart, 
-  updateQuantity, 
-  clearCart, 
-  setCartItems 
-} = cartSlice.actions;
+export const { addToCartLocal, removeFromCart, updateQuantity, clearCart, setCartItems } = cartSlice.actions;
 
 export default cartSlice.reducer;
