@@ -94,16 +94,13 @@ const cartSlice = createSlice({
       );
     },
     updateQuantity: (state, action) => {
-      const { productId, size, color, customMeasurements, quantity } = action.payload;
-      const item = state.items.find(
-        (i) =>
-          i.productId === productId &&
-          i.size === size &&
-          i.color === color &&
-          JSON.stringify(i.customMeasurements) === JSON.stringify(customMeasurements)
-      );
-      if (item) item.quantity = quantity;
-    },
+  const { id, quantity } = action.payload;
+  const item = state.items.find((i) => i._id === id);
+  if (item) {
+    item.quantity = quantity;
+  }
+},
+
     clearCart: (state) => {
       state.items = [];
     },
