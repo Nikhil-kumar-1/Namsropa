@@ -207,7 +207,7 @@ const Wishlist = () => {
                     <img
                       src={item.product.images?.[0]?.url || item.product.image?.url || "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1"}
                       alt={item.product.title}
-                      className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-fit group-hover:scale-105 transition-transform duration-500"
                     />
                     
                     {/* Overlay Gradient */}
