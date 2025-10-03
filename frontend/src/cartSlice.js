@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { backendUrl } from "./config/config";
 
 // ✅ Fetch cart from backend
 export const fetchCart = createAsyncThunk(
@@ -8,7 +9,7 @@ export const fetchCart = createAsyncThunk(
       const token = localStorage.getItem("token");
       if (!token) return [];
 
-      const response = await fetch("http://localhost:5000/api/cart/getCart", {
+      const response = await fetch(`${backendUrl}/api/cart/getCart`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -30,7 +31,7 @@ export const addToCartAsync = createAsyncThunk(
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Please login to add items to cart");
 
-      const response = await fetch("http://localhost:5000/api/cart/add", {
+      const response = await fetch(`${backendUrl}/api/cart/add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -68,7 +69,7 @@ export const removeFromCartAsync = createAsyncThunk(
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Please login to remove items");
 
-      const response = await fetch(`http://localhost:5000/api/cart/remove/${itemId}`, {
+      const response = await fetch(`${backendUrl}/api/cart/remove/${itemId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -98,7 +99,7 @@ export const updateQuantityAsync = createAsyncThunk(
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Please login to update cart");
 
-      const response = await fetch(`http://localhost:5000/api/cart/update/${id}`, {
+      const response = await fetch(`${backendUrl}/api/cart/update/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -129,7 +130,7 @@ export const clearCartAsync = createAsyncThunk(
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Please login to clear cart");
 
-      const response = await fetch("http://localhost:5000/api/cart/clear", {
+      const response = await fetch(`${backendUrl}/api/cart/clear`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,

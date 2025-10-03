@@ -1,5 +1,6 @@
 // wishlistSlice.js - Updated version
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { backendUrl } from "./config/config";
 
 // ✅ Fetch wishlist from backend
 export const fetchWishlist = createAsyncThunk(
@@ -12,7 +13,7 @@ export const fetchWishlist = createAsyncThunk(
         return [];
       }
 
-      const response = await fetch("http://localhost:5000/api/wishlist", {
+      const response = await fetch(`${backendUrl}/api/wishlist`, {
         headers: { 
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json"
@@ -46,7 +47,7 @@ export const addToWishlistAsync = createAsyncThunk(
 
       console.log('Adding to wishlist:', productId);
       
-      const response = await fetch("http://localhost:5000/api/wishlist/add", {
+      const response = await fetch(`${backendUrl}/api/wishlist/add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -92,7 +93,7 @@ export const removeFromWishlistAsync = createAsyncThunk(
 
       console.log('Removing from wishlist:', productId);
 
-      const response = await fetch(`http://localhost:5000/api/wishlist/remove/${productId}`, {
+      const response = await fetch(`${backendUrl}/api/wishlist/remove/${productId}`, {
         method: "DELETE",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -136,7 +137,7 @@ export const checkWishlistStatus = createAsyncThunk(
 
       console.log('Checking wishlist status for:', productId);
       
-      const response = await fetch(`http://localhost:5000/api/wishlist/check/${productId}`, {
+      const response = await fetch(`${backendUrl}/api/wishlist/check/${productId}`, {
         headers: { 
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json"
