@@ -53,7 +53,7 @@ const Hero = () => {
   const fallbackMobileImage = "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80";
 
   return (
-    <section className="relative w-full min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative w-full  h-200 overflow-hidden">
       {/* Background Images */}
       <div className="absolute inset-0">
         {isLoading && (

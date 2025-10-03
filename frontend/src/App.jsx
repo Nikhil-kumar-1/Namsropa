@@ -22,6 +22,7 @@ import SizeChart from "./Component/SizeAndChart/SizeChart";
 import NotFound from "./Component/NotFound/NotFound";
 import Profile from "./Component/Profile/Profile";
 import Orders from "./Component/Order/Order";
+import Wishlist from "./Component/wishlist/Wishlist";
 
 // ✅ ProtectedRoute component
 const ProtectedRoute = ({ children, role }) => {
@@ -64,6 +65,7 @@ const AppContent = () => {
   <Route path="/orders" element={<Orders />}/>
   <Route path="/product/:id" element={<ProductDetails />} /> 
   <Route path="/category/:category" element={<ProductByCategory />} />
+  <Route path="/wishlist" element={<Wishlist />} />
 
   {/* ✅ Protected Cart Route */}
   <Route 

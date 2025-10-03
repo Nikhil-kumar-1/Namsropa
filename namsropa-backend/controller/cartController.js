@@ -160,28 +160,25 @@ exports.updateCartItem = async (req, res) => {
 };
 
 // ✅ Remove item from cart
+// controller/cartController.js
 exports.removeFromCart = async (req, res) => {
   try {
-    const token = req.headers.authorization?.split(" ")[1];
-    if (!token) return res.status(401).json({ success: false, message: "No token provided" });
+    const itemId = req.params.id; // frontend se item id aayega
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.id;
+    // Find cart containing this item
+    const cart = await Cart.findOne({ "items._id": itemId });
+    if (!cart) return res.status(404).json({ success: false, message: "Item not found in any cart" });
 
-    const { itemId } = req.params;
-
-    const cart = await Cart.findOne({ user: userId });
-    if (!cart) return res.status(404).json({ success: false, message: "Cart not found" });
-
-    cart.items = cart.items.filter((item) => item._id.toString() !== itemId);
+    cart.items = cart.items.filter((item) => item._id.toString() !== itemId.toString());
     await cart.save();
 
-    return res.status(200).json({ success: true, message: "Item removed", cart });
+    res.json({ success: true, message: "Item removed", cart });
   } catch (error) {
-    console.error("Remove Cart Item Error:", error);
-    return res.status(500).json({ success: false, message: "Server error", error: error.message });
+    console.error("Remove Cart Error:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 // ✅ Clear entire cart
 exports.clearCart = async (req, res) => {

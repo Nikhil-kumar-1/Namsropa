@@ -2,21 +2,23 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { addToCartAsync } from "../../cartSlice"; // Adjust path according to your project
 
 const ProductDetails = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  
   const { product } = location.state || {};
+  const cartLoading = useSelector((state) => state.cart?.loading || false);
+  
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedSizeType, setSelectedSizeType] = useState("standard");
-  const [selectedColor, setSelectedColor] = useState("");
   const [showSizeChart, setShowSizeChart] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [scrollY, setScrollY] = useState(0);
   const [openSection, setOpenSection] = useState(null);
-  const [loading, setLoading] = useState(false);
-const [cart, setCart] = useState([]);
 
   // Custom measurements state
   const [customMeasurements, setCustomMeasurements] = useState({
@@ -36,89 +38,44 @@ const [cart, setCart] = useState([]);
     setOpenSection(openSection === section ? null : section);
   };
 
-  // Add to cart function - Direct API call
+  // Updated Add to cart function with Redux
   const handleAddToCart = async () => {
-    if (
-      selectedSizeType === "standard" &&
-      !selectedSize &&
-      product.sizes?.length > 0
-    ) {
-      return alert("Please select a size");
-    }
-    if (
-      selectedSizeType === "custom" &&
-      Object.values(customMeasurements).some((m) => m === "")
-    ) {
-      return alert("Please fill all required custom measurements");
-    }
-    if (!selectedColor && product.colors?.length > 0) {
-      return alert("Please select a color");
+    if (!product) return;
+
+    // Validation checks
+    if (selectedSizeType === "standard" && !selectedSize) {
+      alert("Please select a size");
+      return;
     }
 
-    setLoading(true);
+    if (selectedSizeType === "custom" && Object.values(customMeasurements).some(m => m === "")) {
+      alert("Please fill all custom measurements");
+      return;
+    }
+
+    const cartData = {
+      productId: product._id,
+      quantity,
+      sizeType: selectedSizeType,
+      size: selectedSizeType === "standard" ? selectedSize : null,
+      customMeasurements: selectedSizeType === "custom" ? customMeasurements : {},
+      product: product // Include full product for immediate UI update
+    };
 
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("Please login to add items to cart");
-        navigate("/login");
-        return;
-      }
-
-      const cartData = {
-        productId: product._id,
-        quantity,
-        sizeType: selectedSizeType,
-        size: selectedSizeType === "standard" ? selectedSize : null,
-        color: selectedColor,
-        customMeasurements:
-          selectedSizeType === "custom" ? customMeasurements : {},
-      };
-
-      console.log("Sending to backend:", cartData);
-
-      const response = await fetch("http://localhost:5000/api/cart/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(cartData),
-      });
-
-      const result = await response.json();
-      console.log("Backend response:", result);
-
-      if (response.ok && result.success) {
-  alert("✅ Item added to cart successfully!");
-
-  // Fetch updated cart from backend
-  const updatedCartResponse = await fetch("http://localhost:5000/api/cart/getCart", {
-  headers: { Authorization: `Bearer ${token}` }
-});
-
-  const updatedCart = await updatedCartResponse.json();
-
-  // Update frontend cart state (you need to have a state variable for this)
-  setCart(updatedCart.cart); 
-
-  // Reset form
-  setQuantity(1);
-  setSelectedSize("");
-  setSelectedColor("");
-  setCustomMeasurements({
-    shoulder: "", chest: "", bust: "", underBust: "", waist: "", hip: "",
-    upperArm: "", hpsToBust: "", hpsToWaist: "", hpsToKnee: ""
-  });
-}
- else {
-        alert(`❌ Error: ${result.message || "Unable to add item"}`);
+      const result = await dispatch(addToCartAsync(cartData)).unwrap();
+      
+      if (result.success) {
+        alert("✅ Item added to cart successfully!");
       }
     } catch (error) {
-      console.error("Error adding to cart:", error);
-      alert("⚠️ Error adding item to cart. Please try again.");
-    } finally {
-      setLoading(false);
+      if (error.includes("Please login") || error.includes("Session expired")) {
+        alert("Please login to add items to cart");
+        localStorage.removeItem("token");
+        navigate("/login");
+      } else {
+        alert(`❌ Error: ${error}`);
+      }
     }
   };
 
@@ -194,7 +151,6 @@ const [cart, setCart] = useState([]);
 
   // Get main image URL
   const getMainImage = () => {
-    console.log(product);
     if (product.images?.[selectedImage]?.url)
       return product.images[selectedImage].url;
     if (product.image?.url) return product.image.url;
@@ -253,12 +209,12 @@ const [cart, setCart] = useState([]);
             {/* Left Column - Product Images */}
             <div className="space-y-6">
               {/* Main Image */}
-              <div className="relative overflow-hidden rounded-xl bg-gray-800 aspect-square border border-yellow-800/20 shadow-lg">
+             
                 <motion.img
                   key={selectedImage}
                   src={getMainImage()}
                   alt={product.title || product.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-200 object-contain"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
@@ -275,7 +231,7 @@ const [cart, setCart] = useState([]);
                     {product.discount}% OFF
                   </motion.div>
                 )}
-              </div>
+              
 
               {/* Thumbnail Gallery */}
               {product.images && product.images.length > 1 && (
@@ -295,7 +251,7 @@ const [cart, setCart] = useState([]);
                       <img
                         src={image.url}
                         alt={`Thumbnail ${index + 1}`}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-fit"
                       />
                     </motion.button>
                   ))}
@@ -336,28 +292,7 @@ const [cart, setCart] = useState([]);
                 </h1>
 
                 {/* Rating */}
-                <div className="flex items-center mt-3">
-                  <div className="flex">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <svg
-                        key={star}
-                        className={`w-5 h-5 ${
-                          star <= Math.floor(product.rating?.average || 0)
-                            ? "text-yellow-400"
-                            : "text-gray-600"
-                        }`}
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    ))}
-                  </div>
-                  <span className="ml-2 text-white">
-                    {product.rating?.average || "4.5"} (
-                    {product.rating?.count || "100"} reviews)
-                  </span>
-                </div>
+               
               </div>
 
               {/* Price */}
@@ -395,51 +330,25 @@ const [cart, setCart] = useState([]);
                 )}
               </div>
 
-              {/* Color Selection */}
-              {product.colors && product.colors.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-yellow-400 mb-3 border-b border-yellow-800 pb-2">
-                    Color
-                  </h3>
-                  <div className="flex flex-wrap gap-3">
-                    {product.colors.map((color) => (
-                      <motion.button
-                        key={color}
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.95 }}
-                        className={`w-10 h-10 rounded-full border-2 shadow-lg ${
-                          selectedColor === color
-                            ? "ring-2 ring-yellow-500 ring-offset-2 ring-offset-black"
-                            : "border-gray-700"
-                        }`}
-                        style={{
-                          backgroundColor: color.toLowerCase().includes("black")
-                            ? "#000"
-                            : color.toLowerCase().includes("blue")
-                            ? "#1e40af"
-                            : color.toLowerCase().includes("burgundy")
-                            ? "#800020"
-                            : color.toLowerCase().includes("red")
-                            ? "#dc2626"
-                            : color.toLowerCase().includes("white")
-                            ? "#fff"
-                            : color.toLowerCase().includes("green")
-                            ? "#059669"
-                            : color.toLowerCase().includes("pink")
-                            ? "#ec4899"
-                            : color.toLowerCase().includes("purple")
-                            ? "#7c3aed"
-                            : color.toLowerCase().includes("yellow")
-                            ? "#f59e0b"
-                            : "#d1d5db",
-                        }}
-                        onClick={() => setSelectedColor(color)}
-                        aria-label={color}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
+
+              <div className="mb-6">
+                <h3
+                  className="text-lg font-semibold text-yellow-400 mb-3 border-b border-yellow-800 pb-2 cursor-pointer flex justify-between items-center"
+                  onClick={() => toggleSection("delivery")}
+                >
+                  Delivery and Returns
+                  <span>{openSection === "delivery" ? "−" : "+"}</span>
+                </h3>
+                {openSection === "delivery" && (
+                 <p className="text-gray-300 leading-relaxed">
+  We offer complimentary express shipping.<br /><br />
+  Free returns are available worldwide. If your item is eligible for return, you have 30 days from the date you receive your order to follow this procedure.<br /><br />
+  See delivery and returns for more information.
+</p>
+
+                )}
+              </div>
+
 
               {/* Size Type Selection */}
               <div className="mb-6">
@@ -749,19 +658,13 @@ const [cart, setCart] = useState([]);
                       whileTap={{ scale: 0.98 }}
                       className="w-full bg-yellow-500 text-black py-3 px-6 rounded-lg font-semibold hover:bg-yellow-400 transition-colors flex items-center justify-center shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                       disabled={
-                        loading ||
-                        (selectedSizeType === "standard" &&
-                          !selectedSize &&
-                          product.sizes?.length > 0) ||
-                        (selectedSizeType === "custom" &&
-                          Object.values(customMeasurements).some(
-                            (m) => m === ""
-                          )) ||
-                        (!selectedColor && product.colors?.length > 0)
+                        cartLoading ||
+                        (selectedSizeType === "standard" && !selectedSize) ||
+                        (selectedSizeType === "custom" && Object.values(customMeasurements).some(m => m === ""))
                       }
                       onClick={handleAddToCart}
                     >
-                      {loading ? (
+                      {cartLoading ? (
                         <>
                           <svg
                             className="animate-spin -ml-1 mr-3 h-5 w-5 text-black"
@@ -823,18 +726,7 @@ const [cart, setCart] = useState([]);
                       DRS-{product._id?.slice(-8)}
                     </span>
                   </div>
-                  <div>
-                    <span className="text-yellow-500/80">Availability:</span>
-                    <span
-                      className={`ml-2 font-medium ${
-                        product.stock > 0 ? "text-green-400" : "text-red-400"
-                      }`}
-                    >
-                      {product.stock > 0
-                        ? `In Stock (${product.stock})`
-                        : "Out of Stock"}
-                    </span>
-                  </div>
+                  
                 </div>
               </div>
             </div>
@@ -844,4 +736,5 @@ const [cart, setCart] = useState([]);
     </div>
   );
 };
+
 export default ProductDetails;

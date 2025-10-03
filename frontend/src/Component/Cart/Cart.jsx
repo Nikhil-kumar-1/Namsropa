@@ -5,8 +5,8 @@ import {
   selectCartTotalItems,
   selectCartLoading,
   fetchCart,
-  removeFromCart,
-  updateQuantity,
+  removeFromCartAsync,
+  updateQuantityAsync,
 } from "../../cartSlice";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -102,7 +102,7 @@ function Cart() {
                     className="px-2 py-1 border rounded hover:bg-gray-100 transition"
                     onClick={() =>
                       dispatch(
-                        updateQuantity({
+                        updateQuantityAsync({
                           id: item._id,
                           quantity: item.quantity + 1,
                         })
@@ -112,12 +112,14 @@ function Cart() {
                     +
                   </button>
 
-                  <button
-                    className="ml-3 text-red-500 hover:underline"
-                    onClick={() => dispatch(removeFromCart(item))}
-                  >
-                    Remove
-                  </button>
+                 <button
+  className="ml-3 text-red-500 hover:underline"
+  onClick={() => dispatch(removeFromCartAsync(item._id))}
+>
+  Remove
+</button>
+
+
                 </div>
               </motion.div>
             ))}

@@ -23,8 +23,6 @@ const Navbar = () => {
   const wishlistItems = useSelector((state) => state.wishlist?.items || []);
   const authState = useSelector((state) => state.auth || {});
   const { user, isAuthenticated } = authState || {};
-  console.log("Auth state in Navbar:", authState);
-
 
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
   const wishlistCount = wishlistItems.length;
@@ -117,17 +115,22 @@ const Navbar = () => {
       animate={{ y: 0 }}
       transition={{ type: "spring", damping: 15, stiffness: 100 }}
     >
-      <div className="max-w-7xl mx-auto flex justify-between items-center py-4 px-6 uppercase tracking-wide">
+      <div className="max-w-7xl mx-auto flex justify-between items-center py-3 px-4 sm:px-6 uppercase tracking-wide">
         {/* Logo */}
-        <motion.div
-          className="cursor-pointer flex items-center h-14"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <Link to="/" className="flex items-center">
-            <img src="Logo.jpeg" alt="Nam's Ropa Logo" className="h-12 object-contain" />
-          </Link>
-        </motion.div>
+       <motion.div
+  className="cursor-pointer flex items-center h-16" // fixed navbar height
+  whileHover={{ scale: 1.05 }}
+  whileTap={{ scale: 0.95 }}
+>
+  <Link to="/" className="flex items-center h-full">
+    <img 
+      src="Logo.jpeg" 
+      alt="Nam's Ropa Logo" 
+      className="h-20 mb-5 w-auto object-contain" 
+    />
+  </Link>
+</motion.div>
+
 
         {/* Desktop Menu */}
         {!loading && !error && (
@@ -153,28 +156,40 @@ const Navbar = () => {
             ))}
 
             {/* Wishlist */}
-            <li className="relative ml-2">
-              <Link to="/wishlist" className="flex items-center">
-                ❤️
+            <motion.li 
+              className="relative ml-2"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <Link to="/wishlist" className="flex items-center p-2">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+                </svg>
                 {wishlistCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-pink-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold">
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold">
                     {wishlistCount}
                   </span>
                 )}
               </Link>
-            </li>
+            </motion.li>
 
             {/* Cart */}
-            <li className="relative ml-2">
-              <Link to="/cart" className="flex items-center">
-                🛒
+            <motion.li 
+              className="relative ml-2"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <Link to="/cart" className="flex items-center p-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
                 {cartCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-yellow-500 text-black rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold">
+                  <span className="absolute -top-1 -right-1 bg-yellow-500 text-black rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold">
                     {cartCount}
                   </span>
                 )}
               </Link>
-            </li>
+            </motion.li>
 
             {/* Auth/Profile */}
             {isAuthenticated ? (
@@ -260,16 +275,63 @@ const Navbar = () => {
 
         {/* Mobile Icons + Hamburger */}
         <div className="flex items-center md:hidden gap-4">
-          {/* Wishlist + Cart icons same as before */}
+          {/* Wishlist Icon */}
+          <motion.div 
+            className="relative"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            <Link to="/wishlist" className="flex items-center p-2">
+              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+              </svg>
+              {wishlistCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold">
+                  {wishlistCount}
+                </span>
+              )}
+            </Link>
+          </motion.div>
+
+          {/* Cart Icon */}
+          <motion.div 
+            className="relative"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            <Link to="/cart" className="flex items-center p-2">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-yellow-500 text-black rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+          </motion.div>
+
           {/* Hamburger Menu */}
           <motion.div
-            className="flex flex-col space-y-1.5 cursor-pointer z-60"
+            className="flex flex-col space-y-1.5 cursor-pointer z-60 p-2"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             whileTap={{ scale: 0.9 }}
           >
-            <span className={`hamburger-line w-6 h-px bg-black ${mobileMenuOpen ? "translate-y-2 rotate-45" : ""}`}></span>
-            <span className={`hamburger-line w-6 h-px bg-black ${mobileMenuOpen ? "opacity-0" : ""}`}></span>
-            <span className={`hamburger-line w-6 h-px bg-black ${mobileMenuOpen ? "-translate-y-2 -rotate-45" : ""}`}></span>
+            <span 
+              className={`block w-6 h-0.5 bg-black transition-all duration-300 ${
+                mobileMenuOpen ? "rotate-45 translate-y-2" : ""
+              }`}
+            ></span>
+            <span 
+              className={`block w-6 h-0.5 bg-black transition-all duration-300 ${
+                mobileMenuOpen ? "opacity-0" : "opacity-100"
+              }`}
+            ></span>
+            <span 
+              className={`block w-6 h-0.5 bg-black transition-all duration-300 ${
+                mobileMenuOpen ? "-rotate-45 -translate-y-2" : ""
+              }`}
+            ></span>
           </motion.div>
         </div>
       </div>
@@ -278,58 +340,117 @@ const Navbar = () => {
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
-            className="mobile-menu fixed inset-0 bg-white/95 z-40 md:hidden pt-20"
-            initial={{ opacity: 0, y: "-100%" }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: "-100%" }}
-            transition={{ type: "spring", damping: 20, stiffness: 100 }}
+            className="fixed inset-0 bg-white z-40 md:hidden pt-20 overflow-y-auto"
+            initial={{ opacity: 0, x: "100%" }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
           >
-            <div className="flex flex-col items-center h-full space-y-6 text-xl px-6">
-              {navItems.map((item, index) => (
-                <Link
-                  key={index}
-                  to={item.path}
-                  className={`w-full text-center border-b border-gray-200 py-4 ${
-                    location.pathname === item.path ? "font-bold text-amber-700" : "text-gray-800"
-                  }`}
-                  onClick={handleLinkClick}
-                >
-                  {item.name}
-                </Link>
-              ))}
-
-              {isAuthenticated ? (
-                <>
-                  <div className="flex items-center justify-center gap-3 mt-4">
-                    <div className="w-10 h-10 bg-yellow-600 rounded-full flex items-center justify-center">
+            <div className="flex flex-col h-full">
+              {/* User Info Section */}
+              {isAuthenticated && (
+                <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-yellow-600 rounded-full flex items-center justify-center">
                       {user?.avatar ? (
-                        <img src={user.avatar} alt="Profile" className="w-10 h-10 rounded-full object-cover" />
+                        <img 
+                          src={user.avatar} 
+                          alt="Profile" 
+                          className="w-12 h-12 rounded-full object-cover" 
+                        />
                       ) : (
                         <span className="text-lg font-bold text-black">
                           {user?.name?.charAt(0) || "U"}
                         </span>
                       )}
                     </div>
-                    <span className="text-gray-800 font-medium">{user?.name || "User"}</span>
+                    <div>
+                      <p className="font-semibold text-gray-800">{user?.name || "User"}</p>
+                      <p className="text-sm text-gray-600">{user?.email}</p>
+                    </div>
                   </div>
-                  <Link to="/profile" onClick={handleLinkClick} className="text-gray-800 py-2">
-                    My Profile
-                  </Link>
-                  <Link to="/orders" onClick={handleLinkClick} className="text-gray-800 py-2">
-                    My Orders
-                  </Link>
-                  <Link to="/wishlist" onClick={handleLinkClick} className="text-gray-800 py-2">
-                    My Wishlist
-                  </Link>
-                  <button onClick={handleLogout} className="text-red-600 font-medium py-2">
-                    Logout
-                  </button>
-                </>
-              ) : (
-                <Link to="/signup" onClick={handleLinkClick} className="text-gray-800 font-medium py-2">
-                  Sign Up
-                </Link>
+                </div>
               )}
+
+              {/* Navigation Items */}
+              <div className="flex-1 px-6 py-4">
+                <div className="space-y-1">
+                  {navItems.map((item, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <Link
+                        to={item.path}
+                        className={`block py-3 px-4 rounded-lg text-lg font-medium transition-all ${
+                          location.pathname === item.path
+                            ? "bg-yellow-100 text-yellow-800 border-l-4 border-yellow-500"
+                            : "text-gray-700 hover:bg-gray-100"
+                        }`}
+                        onClick={handleLinkClick}
+                      >
+                        {item.name}
+                      </Link>
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Auth Links */}
+                <div className="border-t border-gray-200 mt-6 pt-6">
+                  {isAuthenticated ? (
+                    <div className="space-y-1">
+                      <Link
+                        to="/profile"
+                        className="block py-3 px-4 rounded-lg text-lg text-gray-700 hover:bg-gray-100 transition-all"
+                        onClick={handleLinkClick}
+                      >
+                        My Profile
+                      </Link>
+                      <Link
+                        to="/orders"
+                        className="block py-3 px-4 rounded-lg text-lg text-gray-700 hover:bg-gray-100 transition-all"
+                        onClick={handleLinkClick}
+                      >
+                        My Orders
+                      </Link>
+                      <Link
+                        to="/wishlist"
+                        className="block py-3 px-4 rounded-lg text-lg text-gray-700 hover:bg-gray-100 transition-all"
+                        onClick={handleLinkClick}
+                      >
+                        My Wishlist
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="block w-full text-left py-3 px-4 rounded-lg text-lg text-red-600 hover:bg-red-50 transition-all"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  ) : (
+                    <Link
+                      to="/signup"
+                      className="block py-3 px-4 rounded-lg text-lg bg-black text-white text-center font-semibold hover:bg-gray-800 transition-all"
+                      onClick={handleLinkClick}
+                    >
+                      Sign Up / Login
+                    </Link>
+                  )}
+                </div>
+              </div>
+
+              {/* Close Button */}
+              <div className="p-6 border-t border-gray-200">
+                <motion.button
+                  className="w-full py-3 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-all"
+                  onClick={() => setMobileMenuOpen(false)}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Close Menu
+                </motion.button>
+              </div>
             </div>
           </motion.div>
         )}

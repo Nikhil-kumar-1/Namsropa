@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const authRoutes = require("./routes/auth");
 const productRoutes = require("./routes/productRoute");
 const cartRoutes = require("./routes/cartRoute");
+const wishlist = require("./routes/wishlist")
 
 const cloudinary = require("cloudinary").v2;
 
@@ -53,6 +54,7 @@ cloudinary.config({
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/dresses", productRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/wishlist", wishlist)
 // Root route for Hostinger availability check
 app.get("/", (req, res) => {
   res.json({ status: "Backend is running" });

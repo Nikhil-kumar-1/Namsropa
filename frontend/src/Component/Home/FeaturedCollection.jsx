@@ -2,24 +2,25 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
+
 const FeaturedCollection = () => {
   const collections = [
     {
       title: "Bridal Collection 2025",
       description: "Exquisite bridal wear with intricate embroidery and timeless elegance",
-      image: "https://plus.unsplash.com/premium_photo-1673569505749-325bd2509260?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjV8fGJyaWRhbHxlbnwwfHwwfHx8MA%3D%3D",
+      image: "/bridal.png",
       items: 24,
       link: "/category/bridesmaid"
     },
     {
       title: "New Arrivals",
       description: "Fresh designs that redefine contemporary luxury fashion",
-      image: "https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?auto=format&fit=crop&w=1170&q=80",
+      image: "/newarrival.png",
       items: 18,
       link: "/category/all"
     },
     {
-      title: "Upcoming Collection",
+      title: "Festive Collection",
       description: "Celebrate special occasions with our luxurious festive wear",
       image: "https://images.unsplash.com/photo-1581044777550-4cfa60707c03?auto=format&fit=crop&w=1172&q=80",
       items: 32,
@@ -74,20 +75,21 @@ const FeaturedCollection = () => {
               onClick={() => handleCollectionClick(collection.link)}
             >
               {/* Collection Image */}
-              <div className="relative h-96 overflow-hidden rounded-t-2xl">
-                <motion.img 
-                  src={collection.image} 
-                  alt={collection.title}
-                  className="w-full h-full object-cover"
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ duration: 0.7 }}
-                />
-                
-                {/* Items Count Badge */}
-                <div className="absolute top-5 right-5 bg-yellow-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-md tracking-wider">
-                  {collection.items} ITEMS
-                </div>
-              </div>
+             <div className="relative h-96 w-full overflow-hidden rounded-t-2xl bg-white">
+  <motion.img 
+    src={collection.image} 
+    alt={collection.title}
+    className="w-full h-full object-contain object-center" 
+    whileHover={{ scale: 1.05 }}
+    transition={{ duration: 0.7 }}
+  />
+  
+  {/* Items Count Badge */}
+  <div className="absolute top-1 right-5 bg-yellow-500 text-white px-2 py-1.5 rounded-full text-xs font-medium shadow-md tracking-wider">
+    {collection.items}
+  </div>
+</div>
+
               
               {/* Content */}
               <div className="p-6">
